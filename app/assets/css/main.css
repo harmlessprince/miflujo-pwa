@@ -1,0 +1,44 @@
+/* ─── MiFlujo Brand Design Tokens ─────────────────────────────────────── */
+:root {
+  /* Primary — MiFlujo Red */
+  --color-primary:     #ED2E23;
+  --color-primary-rgb: 237 46 38;
+
+  /* Secondary — Deep Navy */
+  --color-navy:     #02163B;
+  --color-navy-rgb: 2 22 59;
+
+  /* Neutral — Light Grey */
+  --color-grey:     #CCCCCC;
+  --color-grey-rgb: 204 204 204;
+
+  /* High-contrast text only */
+  --color-black: #000000;
+
+  /* Surfaces */
+  --color-surface: #FCFCFC;   /* main app background */
+  --color-white:   #FFFFFF;   /* elevated surfaces */
+}
+
+/* ─── Base reset & typography ──────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Azo-Sans', ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: var(--color-surface);
+  color: var(--color-navy);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Tabular numerals for financial data ──────────────────────────────── */
+/* Apply to balances, amounts, dates, confidence scores, KPI values */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}

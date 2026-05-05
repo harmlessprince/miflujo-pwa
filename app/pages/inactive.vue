@@ -5,6 +5,7 @@ definePageMeta({ layout: 'authentication' })
 useHead({ title: 'Account Inactive — MiFlujo' })
 
 const authStore = useAuthStore()
+const horizontalLogoSrc = '/horizontal-logo.png'
 
 async function backToLogin() {
     await authStore.logout()
@@ -26,7 +27,7 @@ function contactSupport() {
                 <span class="material-symbols-outlined text-headline-md">arrow_back</span>
                 <span>Back</span>
             </button>
-            <h1 class="text-headline-md font-semibold text-navy">MiFlujo</h1>
+            <img :src="horizontalLogoSrc" alt="MiFlujo" class="h-8 w-auto max-w-[140px]" />
             <span class="material-symbols-outlined text-primary text-headline-md cursor-pointer">help</span>
         </header>
 
@@ -34,6 +35,10 @@ function contactSupport() {
             <div class="w-full max-w-sm space-y-6">
 
                 <!-- State icon -->
+                <div class="flex justify-center">
+                    <img src="/logo-with-moto.png" alt="MiFlujo" class="h-16 w-auto" />
+                </div>
+
                 <div class="flex justify-center">
                     <div class="flex h-20 w-20 items-center justify-center rounded-2xl bg-white shadow-sm border border-grey/40">
                         <span class="material-symbols-outlined text-primary" style="font-size: 2.5rem;">no_accounts</span>

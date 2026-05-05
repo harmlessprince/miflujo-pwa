@@ -1,7 +1,7 @@
 <script setup>
 import { useAuthStore } from '~/stores/auth.store.js'
 
-definePageMeta({ layout: 'dashboard'})
+definePageMeta({ layout: 'dashboard' })
 useHead({ title: 'Dashboard — MiFlujo' })
 
 const authStore = useAuthStore()
@@ -45,27 +45,29 @@ const handleUploadClick = () => {
 
       <!-- Upload Button - Primary CTA -->
       <BaseButton
-        class="w-full"
+        class="flex w-full items-center justify-center gap-2"
         @click="handleUploadClick"
       >
-        📄 Upload New Statement
+        <span class="material-symbols-outlined text-title-sm" aria-hidden="true">upload_file</span>
+        <span>Upload New Statement</span>
       </BaseButton>
     </section>
 
     <!-- Tabs Navigation -->
-    <div class="flex border-b border-grey bg-white sticky top-0 z-10">
+    <div class="sticky top-0 z-10 grid grid-cols-3 border-b border-grey bg-white">
       <button
         v-for="tab in tabs"
         :key="tab.id"
         :class="[
-          'flex-1 py-3 text-center text-body-md font-medium transition-colors',
+          'min-w-0 px-1 py-3 text-center text-body-sm font-medium transition-colors',
           activeTab === tab.id
             ? 'text-primary border-b-2 border-primary'
             : 'text-navy border-b-2 border-transparent'
         ]"
+        type="button"
         @click="activeTab = tab.id"
       >
-        {{ tab.label }}
+        <span class="block truncate">{{ tab.label }}</span>
       </button>
     </div>
 
@@ -76,7 +78,7 @@ const handleUploadClick = () => {
         <div class="space-y-5">
           <div v-for="card in dataCards" :key="card.id" class="border-t border-grey pt-4 first:border-t-0 first:pt-0">
             <div class="text-label-caps text-navy font-bold mb-2">{{ card.label }}</div>
-            <div class="text-display-lg text-navy font-semibold font-data-mono tabular-nums">
+            <div class="break-words text-data-mono font-medium text-navy tabular-nums">
               {{ card.value }}
             </div>
           </div>

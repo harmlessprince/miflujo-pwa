@@ -186,6 +186,7 @@ Knowledge docs in `agents/knowledge/` contain deep-dive rules:
 |---|---|
 | `form-components-rule.md` | When to use existing form components vs raw HTML elements |
 | `design-system-rule.md` | Color tokens, typography scale, interactive dimensions, error vs primary usage |
+| `logo-usage-rule.md` | Which logo asset to use by page/layout; never use bare text or icon-only logo replacements unless explicitly requested |
 
 ## Backend API Overview
 

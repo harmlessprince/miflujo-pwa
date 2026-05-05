@@ -76,8 +76,8 @@ const classNames = {
 }
 
 const sideWidths = {
-  right: "w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl",
-  left: "w-full sm:max-w-xl md:max-w-2xl lg:max-w-3xl",
+  right: "w-full max-w-[430px]",
+  left: "w-full max-w-[430px]",
   top: "h-auto w-full",
   bottom: "h-auto w-full",
 }

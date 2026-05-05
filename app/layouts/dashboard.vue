@@ -1,16 +1,13 @@
 <template>
-  <div class="flex flex-col h-screen bg-surface">
+  <div class="mx-auto flex h-svh min-h-svh w-full max-w-[430px] flex-col overflow-hidden bg-surface">
     <!-- Header -->
-    <header class="bg-white border-b border-grey px-4 py-3 flex items-center justify-between">
-      <button class="text-navy" @click="toggleSidebar">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-      <div class="text-primary font-semibold text-headline-md">MIFLUJO</div>
-      <div class="relative" v-if="authStore.user">
+    <header class="flex h-16 shrink-0 items-center justify-between border-b border-grey bg-white px-4">
+      <IconButton icon="menu" label="Open navigation" @click="toggleSidebar" />
+      <img src="/horizontal-logo.png" alt="MiFlujo" class="h-8 w-auto max-w-[150px]" />
+      <div class="relative flex w-10 justify-end" v-if="authStore.user">
         <button
-          class="w-10 h-10 rounded-full bg-navy text-white flex items-center justify-center text-body-sm font-semibold cursor-pointer"
+          type="button"
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-navy text-body-sm font-semibold text-white transition-colors hover:bg-navy/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           @click="profileDropdownOpen = !profileDropdownOpen"
         >
           {{ authStore.user.name?.charAt(0).toUpperCase() || 'U' }}
@@ -19,19 +16,18 @@
         <!-- Dropdown -->
         <div
           v-if="profileDropdownOpen"
-          class="absolute right-0 top-12 w-56 bg-white border border-grey rounded-lg shadow-lg z-50 overflow-hidden"
+          class="absolute right-0 top-12 z-50 w-[min(14rem,calc(100vw-2rem))] overflow-hidden rounded-[10px] border border-grey bg-white shadow-lg"
         >
           <div class="px-4 py-3 border-b border-grey">
             <p class="text-body-sm font-semibold text-navy truncate">{{ authStore.user.name }}</p>
             <p class="text-label-caps text-grey truncate">{{ authStore.user.email }}</p>
           </div>
           <button
-            class="w-full text-left px-4 py-3 text-body-sm text-error hover:bg-surface transition-colors flex items-center gap-2"
+            type="button"
+            class="flex w-full items-center gap-2 px-4 py-3 text-left text-body-sm text-error transition-colors hover:bg-surface"
             @click="handleLogout"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
+            <span class="material-symbols-outlined text-title-sm" aria-hidden="true">logout</span>
             Logout
           </button>
         </div>
@@ -48,51 +44,59 @@
     <!-- Sidebar (optional drawer) -->
     <BaseDrawer v-model:open="sidebarOpen" side="left">
       <nav class="p-6 space-y-4">
+        <img src="/horizontal-logo.png" alt="MiFlujo" class="mb-6 h-8 w-auto" />
         <button
           v-for="item in dashboardSidebarMenu"
           :key="item.key"
-          class="block w-full text-left text-body-md text-navy hover:text-primary transition-colors"
-          @click="navigateTo(item.pathName); sidebarOpen = false"
+          type="button"
+          class="flex w-full items-center gap-3 text-left text-body-md text-navy transition-colors hover:text-primary"
+          @click="goTo(item.pathName); sidebarOpen = false"
         >
+          <span class="material-symbols-outlined text-headline-md" aria-hidden="true">{{ item.icon }}</span>
           {{ item.name }}
         </button>
       </nav>
     </BaseDrawer>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto pb-24">
+    <main class="min-w-0 flex-1 overflow-y-auto overflow-x-hidden">
       <slot />
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-grey flex justify-around items-center h-20 px-4">
+    <nav class="grid h-[calc(72px+env(safe-area-inset-bottom))] shrink-0 grid-cols-4 items-stretch border-t border-grey bg-white px-2 pb-[env(safe-area-inset-bottom)]">
       <button
         v-for="navItem in bottomNav"
         :key="navItem.id"
         :class="[
-          'flex flex-col items-center justify-center h-20 text-center transition-colors',
+          'flex min-w-0 flex-col items-center justify-center gap-1 px-1 text-center transition-colors',
           activeNav === navItem.id ? 'text-primary' : 'text-navy'
         ]"
-        @click="activeNav = navItem.id; navigateTo(navItem.pathName)"
+        type="button"
+        @click="goTo(navItem.pathName)"
       >
-        <div class="text-2xl mb-1">{{ navItem.icon }}</div>
-        <span class="text-label-caps font-bold text-xs">{{ navItem.label }}</span>
+        <span class="material-symbols-outlined text-headline-md" aria-hidden="true">
+          {{ activeNav === navItem.id ? navItem.activeIcon : navItem.icon }}
+        </span>
+        <span class="w-full truncate text-label-caps font-bold">{{ navItem.label }}</span>
       </button>
     </nav>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '~/stores/auth.store'
 
-const router = useRouter()
+const route = useRoute()
 const authStore = useAuthStore()
 
 const sidebarOpen = ref(false)
-const activeNav = ref('dashboard')
 const profileDropdownOpen = ref(false)
+
+const activeNav = computed(() => {
+  const matchedItem = bottomNav.find((item) => route.path.startsWith(item.pathName))
+  return matchedItem?.id || 'dashboard'
+})
 
 const handleLogout = async () => {
   profileDropdownOpen.value = false
@@ -109,18 +113,18 @@ const dashboardSidebarMenu = [
 
 // Bottom navigation
 const bottomNav = [
-  { id: 'dashboard', label: 'DASHBOARD', icon: '📊', pathName: '/dashboard' },
-  { id: 'statements', label: 'STATEMENTS', icon: '📄', pathName: '/statements' },
-  { id: 'upload', label: 'UPLOAD', icon: '⬆️', pathName: '/upload' },
-  { id: 'ai', label: 'AI', icon: '⚙️', pathName: '/ai' },
+  { id: 'dashboard', label: 'DASHBOARD', icon: 'dashboard', activeIcon: 'dashboard', pathName: '/dashboard' },
+  { id: 'statements', label: 'STATEMENTS', icon: 'description', activeIcon: 'description', pathName: '/statements' },
+  { id: 'upload', label: 'UPLOAD', icon: 'upload', activeIcon: 'upload', pathName: '/upload' },
+  { id: 'ai', label: 'AI', icon: 'smart_toy', activeIcon: 'smart_toy', pathName: '/ai' },
 ]
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
 }
 
-const navigateTo = (path) => {
-  router.push(path)
+const goTo = (path) => {
+  navigateTo(path)
 }
 </script>
 

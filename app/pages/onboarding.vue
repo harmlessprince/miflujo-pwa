@@ -35,7 +35,7 @@ async function continueToUpload() {
     <main class="flex min-h-screen flex-col justify-center px-6 py-10">
         <section class="mx-auto w-full max-w-sm rounded-[10px] border border-grey/60 bg-white px-6 py-8 shadow-sm">
             <div class="mb-8 text-center">
-                <img src="/horizontal-logo.png" alt="MiFlujo" class="mx-auto h-8 w-auto" />
+                <img src="/logo-with-moto.png" alt="MiFlujo" class="mx-auto h-16 w-auto" />
                 <h1 class="mt-6 text-display-lg font-semibold text-navy">Confirm your defaults</h1>
                 <p class="mt-3 text-body-md font-normal text-navy/70">
                     These settings help MiFlujo format your statement insights correctly.

@@ -7,7 +7,6 @@ useHead({ title: 'MiFlujo — Financial intelligence for Nigerian bank statement
 
 const authStore = useAuthStore()
 const route = useRoute()
-const horizontalLogoSrc = '/horizontal-logo.png'
 const logoWithMotoSrc = '/logo-with-moto.png'
 
 const autoEntryMode = ref(false)
@@ -191,7 +190,7 @@ onMounted(async () => {
 
         <!-- Logo -->
         <header class="flex items-center justify-center pt-4">
-            <img :src="horizontalLogoSrc" alt="MiFlujo" class="h-10 w-auto" />
+            <img :src="logoWithMotoSrc" alt="MiFlujo" class="h-16 w-auto" />
         </header>
 
         <!-- Main content -->

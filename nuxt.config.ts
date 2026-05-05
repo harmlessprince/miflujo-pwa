@@ -7,12 +7,13 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      apiBaseUrl: '',
+      apiBaseUrl: (globalThis as any).process?.env?.NUXT_PUBLIC_API_BASE_URL ?? '',
       googleAuth: {
-        clientId: '',
+        clientId: googleClientId,
       },
     },
   },
+
 
   googleAuth: {
     clientId: googleClientId,

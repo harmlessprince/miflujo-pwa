@@ -1,89 +1,196 @@
-# AGENTS.md — MiFlujo Must-Know Rules
+# AGENTS.md
 
-Critical guard-rails for every agent working in this repo. These rules override
-common defaults. Read this before touching any file.
+This file provides guidance to Agents when working with code in this repository.
 
----
+## What This Project Is
 
-## 1. API calls go through `useApiService()` — always
+MiFlujo is a mobile-first PWA for Nigerian financial intelligence. Users upload bank statements (PDF or URL), the backend extracts and classifies transactions via AI, and the app surfaces spending insights, dashboards, and an AI financial assistant. Authentication is Google OAuth only — no email/password flow exists.
 
-Never call `$fetch` or `useFetch` directly from a component or page.
-All network requests must go through the `useApiService()` composable in
-`services/apiService.js`. This composable handles auth headers, token expiry,
-and error normalization.
+## Commands
 
-```js
-// ✅ correct
-const { get, post } = useApiService()
-const response = await get(endpoints.bankStatements.list)
-
-// ❌ wrong
-const response = await $fetch('/bank-statements')
+```bash
+npm run dev        # dev server at http://localhost:3000
+npm run build      # production build
+npm run generate   # static site generation
+npm run preview    # preview production build locally
 ```
 
-## 2. Form elements must use existing primitives
+No lint or test scripts are configured yet.
 
-Never write a raw `<input>`, `<select>`, `<textarea>`, or `<button>` in a page or
-domain component. Always use the purpose-built primitives. See
-`agents/knowledge/form-components-rule.md` for the full mapping.
+## Architecture
 
-## 3. Design tokens only — no raw colors or arbitrary sizes
+**Stack**: Nuxt 4 · Vue 3 · TypeScript · Tailwind CSS · Pinia · vee-validate · vue-final-modal · @vite-pwa/nuxt · nuxt-google-auth
 
-Never use `slate-*`, `gray-*`, `rose-*`, or arbitrary hex values in Tailwind classes.
-Map every color to a MiFlujo token (`text-navy`, `bg-primary`, `text-error`, etc.).
-Use the named typography scale (`text-body-md`, `text-headline-md`, etc.) instead of
-`text-sm` or `text-xs`. See `agents/knowledge/design-system-rule.md`.
+Nuxt 4 uses the `app/` directory — the root component is `app/app.vue`. Pages, components, layouts, stores, and middleware live at the project root (not inside `app/`).
 
-## 4. Use `logger`, never `console.log`
+### Data flow
 
-`logger` from `utils/helpers.js` suppresses output in production. Using `console.log`
-directly leaks debug output to end users.
-
-```js
-import { logger } from '~/utils/helpers.js'
-logger.log('debug info')   // suppressed in production
+```
+utils/endpoints.js   →   stores/<name>.store.js   →   components / pages
+(URL registry)           (Pinia, useApiService)        (consume store state)
 ```
 
-## 5. Auth is Google OAuth only
-
-There is no email/password registration or login flow. Do not create password fields,
-forgot-password pages, or email-verification logic. Authentication entry point is
-`POST /auth/google` and the session is managed by `nuxt-google-auth`.
-
-## 6. Every authenticated request needs a Bearer token
-
-The access token returned by `POST /auth/google` must be sent as
-`Authorization: Bearer <token>` on every subsequent API call. Token expiry is tracked
-client-side using `expires_in` — prompt re-authentication gracefully; do not force a
-hard logout.
-
-## 7. Statement upload password errors are recoverable
-
-`bank_statement_password_required` and `bank_statement_invalid_password` are not
-terminal failures. When the backend returns either code, keep the uploaded file in
-session and render an inline password prompt. Never redirect to an error page or
-clear the file on these codes.
-
-## 8. Currency always uses `formatToMoney()`
-
-All Naira amounts shown in the UI must be formatted with `formatToMoney(value)` from
-`utils/helpers.js`. This produces the canonical `₦1,234.56` format. Never format
-currency inline with `toLocaleString` or template literals.
-
-## 9. All new endpoints go in `utils/endpoints.js`
-
-Never hardcode a URL string in a store or component. Add every new route to the
-`endpoints` object in `utils/endpoints.js`, using a function form for parameterized
-routes.
+All API calls go through `useApiService()` (a composable to be built in `services/apiService.js`). Never call `$fetch` or `useFetch` directly from a component or page. Parameterized endpoints use either string replacement (`.replace(':id', id)`) or function form:
 
 ```js
-// function form for parameterized routes
-detail: (id) => `/bank-statements/${id}`,
+// utils/endpoints.js
+export const endpoints = {
+  auth: {
+    google: '/auth/google',
+  },
+  bankStatements: {
+    list:      '/bank-statements',
+    create:    '/bank-statements',
+    detail:    (id) => `/bank-statements/${id}`,
+    dashboard: (id) => `/bank-statements/${id}/dashboard-summary`,
+    choices:   '/bank-statement-choices',
+  },
+  transactions: {
+    list: '/bank-statements/transactions',
+  },
+  insights: {
+    monthAnalysis: (id) => `/compute-month-analysis/${id}`,
+    weekAnalysis:  '/compute-week-analysis',
+    totalIncome:   '/calculate-total-income',
+    totalSpent:    '/calculate-total-spent',
+    netCashflow:   '/calculate-net-cashflow',
+    // ...other insight endpoints
+  },
+  questions: {
+    guided: '/questions/guided',
+    answer: '/questions/answer',
+    query:  '/query-insight',
+  },
+}
 ```
 
-## 10. Every dashboard page needs a sidebar entry
+### Stores (Pinia Setup API)
 
-Any new page that uses the `dashboard` layout must be registered in the
-`dashboardSidebarMenu` array in `layouts/dashboard.vue`. Omitting this makes the
-page unreachable from the UI. See `agents/knowledge/page-patterns.md` for the
-entry shape.
+All stores live in `stores/<domain>.store.js` and use the Setup API:
+
+```js
+import { defineStore } from 'pinia'
+import { endpoints } from '~/utils/endpoints.js'
+
+export const useBankStatementStore = defineStore('bankStatementStore', () => {
+  const { get, post } = useApiService()
+  const toastStore = useToastStore()
+
+  const statements = ref([])
+  const loading = ref(false)
+
+  async function fetchStatements(params = {}) {
+    loading.value = true
+    try {
+      const response = await get(endpoints.bankStatements.list, params)
+      if (response?.data) statements.value = response.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { statements, loading, fetchStatements }
+})
+```
+
+Use `toastStore.success()` / `toastStore.error()` for user feedback after mutations. Use `getPaginatedData()` from `utils/helpers.js` to shape pagination metadata for `DataTable`.
+
+### Pages
+
+Every page uses `definePageMeta()` for layout and middleware and `useHead()` for SEO:
+
+```vue
+<script setup>
+definePageMeta({ layout: 'dashboard', middleware: ['auth'] })
+useHead({ title: 'Dashboard — MiFlujo' })
+</script>
+```
+
+Available layouts: `dashboard` (main app with navigation), `auth` (centered, no nav). Middleware: `auth` (redirect to login if unauthenticated), `guest` (redirect to dashboard if already logged in).
+
+Every new dashboard page must be registered in the `dashboardSidebarMenu` array inside `layouts/dashboard.vue`. Each entry shape:
+```js
+{ key, name, icon, activeIcon, pathName, comingSoon }
+```
+Icons come from Material Symbols (`material-symbols-outlined`).
+
+### Components
+
+Reusable base components live in `components/`. Domain-specific components are grouped into subfolders (e.g., `components/Dashboard/`, `components/Form/`).
+
+**Always use the existing form primitives — never raw HTML form elements:**
+
+| Use case | Component |
+|---|---|
+| Text input | `AppInput` |
+| Textarea | `BaseTextArea` |
+| Select | `BaseSelectInput` |
+| Searchable dropdown | `SearchableSelectInput` |
+| Button / submit | `BaseButton` or `Form/FormButton` |
+| vee-validate field | `Form/FormInput` |
+
+For tabular data use `DataTable` (`components/table/DataTable.vue`) — it handles loading skeletons, empty state, pagination, and action menus out of the box.
+
+All components use `<script setup>` with explicit `defineProps()` and `defineEmits()`.
+
+- **Icons**: Always use Google Material Symbols Outlined (`<span class="material-symbols-outlined">icon_name</span>`). Do not use inline SVGs or Lucide icons except where already established.
+
+## Design System
+
+Brand tokens are in CSS custom properties (`assets/css/main.css`) and Tailwind (`tailwind.config.ts`):
+
+| Token | Value | Tailwind class |
+|---|---|---|
+| MiFlujo Red (primary) | `#ED2E23` | `text-primary` / `bg-primary` |
+| Deep Navy | `#02163B` | `text-navy` / `bg-navy` |
+| Light Grey | `#CCCCCC` | `text-grey` / `border-grey` |
+| App background | `#FCFCFC` | `bg-surface` |
+
+Typography: Azo-Sans is the primary font (already loaded in `fonts.css` and set as `font-sans` in Tailwind). A named typography scale is defined in `tailwind.config.ts` — use `text-display-lg`, `text-headline-md`, `text-title-sm`, `text-body-md`, `text-body-sm`, `text-data-mono`, and `text-label-caps` instead of raw `text-sm` / `text-xs` / arbitrary sizes. For all financial values — balances, amounts, dates, confidence scores — use `text-data-mono font-medium tabular-nums`.
+
+An `error` color (`#DC2626`) is available as `text-error` / `border-error` — use it for validation and error states so they are visually distinct from `bg-primary` CTAs.
+
+Red (`bg-primary`) is reserved for primary actions (upload, process, save, confirm). Charts must not rely on red alone — pair with Deep Navy and greys.
+
+Currency formatting: always use `formatToMoney(value)` from `utils/helpers.js` which produces `₦1,234.56` format.
+
+See `agents/knowledge/design-system-rule.md` for the full token reference, typography scale usage guide, and component dimensions.
+
+## Key Utilities
+
+All in `utils/`:
+
+- `endpoints.js` — centralized API route registry (add new routes here)
+- `helpers.js` — `formatToMoney`, `formatDate`, `getPaginatedData`, `cleanObject`, `debounce`, `logger`, `handleFileUpload`
+- `dictionaries.js` — shared enum arrays (payment gateways, order/payment statuses, notification types)
+- `permissions.js` — frozen permissions constants (`permissions.CAN_READ_ORDER`, etc.)
+
+`logger` from `helpers.js` suppresses output in production — always use it instead of `console.log`.
+
+## Agent Skills
+
+This repo ships skill definitions in `agents/skills/` for use with AI coding agents. Invoke them when the task matches:
+
+| Skill | When to use |
+|---|---|
+| `write-component` | Creating a new Vue component |
+| `write-page` | Creating a new Nuxt page/route |
+| `write-store` | Creating a new Pinia store |
+| `integrate-api` | Wiring a new backend endpoint |
+| `data-table` | Adding a paginated table view |
+| `searchable-select-input` | Using the searchable dropdown component |
+
+Knowledge docs in `agents/knowledge/` contain deep-dive rules:
+
+| Doc | Covers |
+|---|---|
+| `form-components-rule.md` | When to use existing form components vs raw HTML elements |
+| `design-system-rule.md` | Color tokens, typography scale, interactive dimensions, error vs primary usage |
+
+## Backend API Overview
+
+The backend is a separate service. All endpoints are prefixed without a version segment (e.g., `/auth/google`, `/bank-statements`). The access token from `POST /auth/google` must be sent as `Authorization: Bearer <token>` on every subsequent request. Token TTL is `expires_in` seconds — track expiry client-side and prompt re-authentication gracefully rather than forcing a hard logout.
+
+Supported banks: Zenith, UBA, Access, FBN/First Bank, GTB, FCMB, Fidelity, Sterling, Opay, Palmpay, Kuda. The bank selector is populated from `GET /bank-statement-choices`.
+
+Statement upload returns structured error codes for recoverable states — `bank_statement_password_required` and `bank_statement_invalid_password` must never be treated as terminal failures. Keep the uploaded file in session and show an inline password prompt.

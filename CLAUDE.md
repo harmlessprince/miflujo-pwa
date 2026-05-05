@@ -133,6 +133,8 @@ For tabular data use `DataTable` (`components/table/DataTable.vue`) — it handl
 
 All components use `<script setup>` with explicit `defineProps()` and `defineEmits()`.
 
+- **Icons**: Always use Google Material Symbols Outlined (`<span class="material-symbols-outlined">icon_name</span>`). Do not use inline SVGs or Lucide icons except where already established.
+
 ## Design System
 
 Brand tokens are in CSS custom properties (`assets/css/main.css`) and Tailwind (`tailwind.config.ts`):

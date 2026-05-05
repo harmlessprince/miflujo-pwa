@@ -2,7 +2,7 @@
 
 # Configuration: Source and target directories
 SOURCE_DIR="agents/"
-TARGET_DIRS=(".cursor/" ".claude/" ".antigravity/")
+TARGET_DIRS=(".cursor/" ".claude/" ".antigravity/" ".gemini/" ".agents/")
 
 # Get the script's directory (already in project root)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

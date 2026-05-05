@@ -119,6 +119,23 @@ store actions instead.
 
 ---
 
+## Auth store: `returnUrl` must default to `null`
+
+`returnUrl` in `auth.store.js` must be initialized to `null`, never `'/'`.
+The post-login navigation uses `returnUrl.value || '/dashboard'`. Because `'/'` is
+truthy, defaulting to it causes the user to be sent back to the login page after
+a successful Google login instead of the dashboard.
+
+```js
+// ✅ correct — null falls through to the dashboard fallback
+const returnUrl = ref(null)
+
+// ❌ wrong — '/' is truthy; post-login navigateTo goes to the login page
+const returnUrl = ref('/')
+```
+
+---
+
 ## Endpoint calls use `endpoints` object, never hardcoded strings
 
 ```js

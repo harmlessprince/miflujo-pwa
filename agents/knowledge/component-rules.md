@@ -73,6 +73,24 @@ Do not build a custom table loop when `DataTable` covers the requirement.
 
 ---
 
+## `BaseDrawer` usage
+
+`BaseDrawer` uses a named `open` prop (not `modelValue`) and emits `update:open`.
+Always bind with `v-model:open`, never plain `v-model`. The direction prop is `side`,
+not `position`. Valid values: `"right"` (default), `"left"`, `"top"`, `"bottom"`.
+
+```vue
+<!-- ✅ correct -->
+<BaseDrawer v-model:open="sidebarOpen" side="left">
+  <nav>...</nav>
+</BaseDrawer>
+
+<!-- ❌ wrong — "open" prop missing, wrong direction prop name -->
+<BaseDrawer v-model="sidebarOpen" position="left">
+```
+
+---
+
 ## Icons
 
 Use Material Symbols exclusively: `<span class="material-symbols-outlined">icon_name</span>`.

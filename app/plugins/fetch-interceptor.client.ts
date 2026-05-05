@@ -15,6 +15,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
 
 
     globalThis.$fetch = $fetch.create({
+        credentials: 'include',
         onRequest({options}) {
             errorStore.resetErrors()
             if (!config.public.debugMode) {
@@ -26,7 +27,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
             }
         },
 
-        onResponse({response, options}) {
+        async onResponse({response, options}) {
             // Optionally handle global success logging
             const status = response?.status;
             const type = response?.type;
@@ -40,8 +41,8 @@ export default defineNuxtPlugin((_nuxtApp) => {
             const error = data?.error ?? 'error';
             let message = data?.message ?? 'Error, please try again later';
 
-            // If silent, suppress toasts and specific redirects (except 401)
-            if (isSilent && status >= 400 && status !== 401) {
+            // Silent requests: suppress toasts and redirects for all 4xx/5xx errors
+            if (isSilent && status >= 400) {
                 logger.error(`[Silent API Error] ${status} ${options.method} ${response.url}:`, data);
                 return data;
             }
@@ -54,12 +55,17 @@ export default defineNuxtPlugin((_nuxtApp) => {
                     errorStore.setErrorMessage(data.message)
                     toastStore.error(data?.message ?? 'Bad request, please try again later', error)
                     break;
-                case 401:
-                    authStore.clearAuthToken()
-                    authStore.clearAuthUser()
+                case 401: {
+                    const isRefreshEndpoint = response.url?.includes('/auth/refresh')
+                    if (!isRefreshEndpoint) {
+                        const refreshed = await authStore.refreshSession()
+                        if (refreshed) return data
+                    }
+                    authStore.returnUrl = window?.location?.pathname + window?.location?.search
                     toastStore.error(message, "Unauthenticated")
-                    navigateTo("/login")
-                    break;
+                    navigateTo("/?reauth=1")
+                    break
+                }
                 case 403:
                     toastStore.error(message, "Unauthorized")
                     navigateTo("/unauthorized");
@@ -92,32 +98,18 @@ export default defineNuxtPlugin((_nuxtApp) => {
                 if (errorCodeValue) errorStore.setErrorCode(errorCodeValue);
                 if (nextStepValue) errorStore.setNextStep(nextStepValue);
 
-                let emailFromRequest: string | null = null;
-                try {
-                    const body: unknown = options?.body;
-                    if (body && typeof body === 'string') {
-                        emailFromRequest = (JSON.parse(body) as Record<string, unknown>)?.email as string ?? null;
-                    } else if (body && typeof body === 'object') {
-                        emailFromRequest = (body as Record<string, unknown>)?.email as string ?? null;
-                    }
-                } catch { /* not JSON, ignore */ }
-
                 switch (nextStepValue) {
                     case 'REINITIATE_EMAIL_VERIFICATION': {
                         // Local page (verify-email/index.vue) reacts via errorStore.nextStep.
                         break;
                     }
-                    case 'REQUEST_PASSWORD_RESET': {
-                        const email = emailFromRequest || authStore?.forgotPasswordTokenEmail;
-                        const query = email ? `?email=${encodeURIComponent(email)}` : '';
-                        navigateTo(`/forgot-password${query}`);
+                    case 'REQUEST_PASSWORD_RESET':
                         break;
-                    }
                     case 'LOGIN': {
                         if (status !== 401) {
                             authStore.clearAuthToken();
                             authStore.clearAuthUser();
-                            navigateTo('/login');
+                            navigateTo('/');
                         }
                         break;
                     }

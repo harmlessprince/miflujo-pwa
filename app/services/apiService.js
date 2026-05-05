@@ -21,6 +21,7 @@ export const useApiService = () => {
             return await $fetch(route, {
                 baseURL,
                 method,
+                credentials: 'include',
                 headers: finalHeaders,
                 body: method !== 'GET' ? data : undefined,
                 params: method === 'GET' ? params : undefined,

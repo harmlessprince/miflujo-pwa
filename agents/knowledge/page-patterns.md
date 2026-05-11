@@ -13,10 +13,7 @@ is optional.
 
 ```vue
 <script setup>
-definePageMeta({
-  layout: 'dashboard',       // or 'auth' — see layout rules below
-  middleware: ['auth'],      // or ['guest'] — see middleware rules below
-})
+definePageMeta({ layout: 'dashboard' })   // or 'auth' — see layout rules below
 
 useHead({ title: 'Transactions — MiFlujo' })
 </script>
@@ -38,14 +35,24 @@ will fall back to `default.vue`, which may not exist.
 
 ---
 
-## Middleware selection
+## Middleware
 
-| Middleware | Effect |
-|---|---|
-| `auth` | Redirects to login if user is not authenticated — use on all dashboard pages |
-| `guest` | Redirects to dashboard if user is already logged in — use on the auth/login page only |
+Both middleware files use the `.global.js` suffix:
 
-Both middleware keys are passed as an array: `middleware: ['auth']`.
+- `app/middleware/auth.global.js` — redirects unauthenticated users to login
+- `app/middleware/guest.global.js` — redirects authenticated users to the dashboard
+
+**Global middleware runs automatically on every route.** Do not reference them in
+`definePageMeta` — Nuxt treats the `middleware` array as named (non-global) middleware
+only, and will throw `"Unknown route middleware: 'auth'"` at runtime if you do.
+
+```js
+// ✅ correct — no middleware key needed
+definePageMeta({ layout: 'dashboard' })
+
+// ❌ wrong — throws "Unknown route middleware: 'auth'"
+definePageMeta({ layout: 'dashboard', middleware: ['auth'] })
+```
 
 ---
 
@@ -82,7 +89,7 @@ of `<script setup>`. This prevents SSR/hydration mismatches in the PWA.
 <script setup>
 import { useTransactionStore } from '~/stores/transaction.store.js'
 
-definePageMeta({ layout: 'dashboard', middleware: ['auth'] })
+definePageMeta({ layout: 'dashboard' })
 useHead({ title: 'Transactions — MiFlujo' })
 
 const transactionStore = useTransactionStore()
@@ -118,14 +125,24 @@ not reactive if accessed synchronously during setup in all Nuxt 4 contexts.
 
 ## Page file location
 
-Pages live in `pages/` at the project root — not inside `app/`. The Nuxt 4
-`app/` directory contains only `app.vue` and framework-level entry points.
+This project uses the Nuxt 4 `app/` source directory. All pages, components,
+layouts, middleware, stores, and utilities live **inside `app/`**:
 
 ```
-pages/
-  index.vue           → route: /
-  statements/
-    index.vue         → route: /statements
-    [id].vue          → route: /statements/:id
-  transactions.vue    → route: /transactions
+app/
+  pages/
+    index.vue              → route: /
+    statements/
+      index.vue            → route: /statements
+      [id]/
+        dashboard.vue      → route: /statements/:id/dashboard
+        transactions.vue   → route: /statements/:id/transactions
+    upload/
+      index.vue            → route: /upload
+  middleware/
+    auth.global.js
+    guest.global.js
+  layouts/
+    dashboard.vue
+    auth.vue
 ```

@@ -199,7 +199,7 @@ onMounted(async () => {
                 <h1 class="text-display-lg font-semibold text-navy">
                     Financial intelligence for Nigerian bank statements.
                 </h1>
-                <p class="text-body-md font-normal text-grey">
+                <p class="text-body-md font-normal text-secondary">
                     Upload your PDF statements and get instant AI-driven insights,
                     categorization, and fraud detection.
                 </p>
@@ -225,7 +225,7 @@ onMounted(async () => {
                     Support
                 </a>
             </nav>
-            <p class="text-label-caps font-bold uppercase text-grey tracking-widest">
+            <p class="text-label-caps font-bold uppercase text-secondary tracking-widest">
                 &copy; 2024 MiFlujo Technologies
             </p>
         </footer>

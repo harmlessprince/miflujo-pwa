@@ -27,7 +27,7 @@ const dataCards = [
 ]
 
 const handleUploadClick = () => {
-  navigateTo('/upload')
+  navigateTo('/dashboard/statements/upload')
 }
 </script>
 

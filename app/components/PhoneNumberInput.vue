@@ -125,7 +125,7 @@ function handleKeydown(event: KeyboardEvent) {
         <span class="text-base leading-none">{{ selectedCountry.flag }}</span>
         <span>{{ selectedCountry.code }}</span>
         <svg
-          class="w-3.5 h-3.5 text-grey transition-transform duration-200"
+          class="w-3.5 h-3.5 text-secondary transition-transform duration-200"
           :class="isDropdownOpen ? 'rotate-180' : ''"
           fill="none" stroke="currentColor" viewBox="0 0 24 24"
         >
@@ -143,7 +143,7 @@ function handleKeydown(event: KeyboardEvent) {
         :maxlength="maxlength"
         :name="name"
         :readonly="readonly"
-        class="w-full h-[47px] rounded-r-[10px] border border-grey bg-white px-4 text-body-md text-navy placeholder:text-grey focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+        class="w-full h-[47px] rounded-r-[10px] border border-grey bg-white px-4 text-body-md text-navy placeholder:text-secondary focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
         :class="[
           error ? 'border-error focus:ring-error' : '',
           inputClass
@@ -161,14 +161,14 @@ function handleKeydown(event: KeyboardEvent) {
             v-model="searchQuery"
             type="text"
             placeholder="Search country..."
-            class="w-full h-9 px-3 rounded-lg bg-surface border border-grey text-body-md text-navy placeholder:text-grey outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            class="w-full h-9 px-3 rounded-lg bg-surface border border-grey text-body-md text-navy placeholder:text-secondary outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             @click.stop
           />
         </div>
 
         <!-- Country List -->
         <ul class="max-h-52 overflow-y-auto py-1">
-          <li v-if="filteredCountries.length === 0" class="px-4 py-3 text-body-md text-grey text-center">
+          <li v-if="filteredCountries.length === 0" class="px-4 py-3 text-body-md text-secondary text-center">
             No countries found
           </li>
           <li
@@ -180,13 +180,13 @@ function handleKeydown(event: KeyboardEvent) {
           >
             <span class="text-base">{{ country.flag }}</span>
             <span class="flex-1">{{ country.name }}</span>
-            <span class="text-grey font-medium">{{ country.code }}</span>
+            <span class="text-secondary font-medium">{{ country.code }}</span>
           </li>
         </ul>
       </div>
     </div>
 
     <p v-if="error" class="text-body-sm text-error mt-1.5 font-medium">{{ error }}</p>
-    <p v-else-if="hint" class="text-label-caps text-grey mt-2 uppercase font-bold tracking-widest">{{ hint }}</p>
+    <p v-else-if="hint" class="text-label-caps text-secondary mt-2 uppercase font-bold tracking-widest">{{ hint }}</p>
   </div>
 </template>

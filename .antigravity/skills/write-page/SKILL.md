@@ -107,7 +107,7 @@ Always use these — never raw Tailwind colors like `text-slate-*` or `text-gray
 | MiFlujo Red | `text-primary` / `bg-primary` | Primary CTAs, highlights |
 | Deep Navy | `text-navy` / `bg-navy` | Headings, body text |
 | Navy muted | `text-navy/60` | Secondary / descriptive text |
-| Light Grey | `text-grey` / `border-grey` | Borders, dividers |
+| Light Grey | `text-secondary` / `border-grey` | Borders, dividers |
 | App background | `bg-surface` | Page backgrounds |
 | Error | `text-error` / `border-error` | Validation errors only |
 

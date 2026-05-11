@@ -96,8 +96,9 @@ Mobile-first interaction principles:
 6. User optionally enters a statement password.
 7. System processes the statement.
 8. User sees a processing result with parse confidence, warnings, and extracted account details.
-9. User lands on a dashboard showing income, expenses, net cashflow, transactions, spending categories, merchants, patterns, and suggestions.
-10. User can explore transactions, filter/search, view insights, and ask guided AI financial questions.
+9. User sees statement-level processing health: transactions processed, category/channel/entity status, coverage, and confidence level.
+10. User lands on a dashboard showing income, expenses, net cashflow, transactions, spending categories, merchants, patterns, and suggestions.
+11. User can explore transactions, filter/search, view insights, and ask guided AI financial questions.
 
 ## Required Screens
 
@@ -209,6 +210,10 @@ Primary data:
 - Net cashflow
 - Transaction count
 - Parse confidence / data quality
+- Statement processing status
+- Transaction ingestion status
+- Category, channel, and entity processing status
+- Statement-level coverage and confidence level
 
 Main cards:
 
@@ -217,6 +222,7 @@ Main cards:
 - Net Cashflow
 - Transaction Count
 - Category Confidence
+- Statement Processing Health
 - Recurring Payments
 - Unusual Transactions
 - Data Quality / Validation Warnings
@@ -283,6 +289,9 @@ Success state should show:
 - Exported Excel file link if available
 - Parse confidence
 - Parse warnings, if any
+- Transaction ingestion status and transaction count
+- Category, channel, and entity processing statuses
+- Statement-level confidence level
 
 Failure state should show:
 
@@ -377,6 +386,11 @@ Columns:
 - Total withdrawals
 - Date uploaded
 - Status
+- Transactions status
+- Category status
+- Channel status
+- Entity status
+- Confidence level
 - Actions
 
 Actions:
@@ -394,6 +408,11 @@ Filters:
 - Bank or wallet
 - Created date range
 - Status, even if marked coming soon
+- Transactions status
+- Category status
+- Channel status
+- Entity status
+- Confidence level
 
 Endpoint:
 
@@ -408,10 +427,74 @@ account_number
 account_name
 customer_id
 status
+transactions_status
+category_status
+channel_status
+entity_status
+confidence_level
 bank_statement_choice
 from_date
 to_date
 ```
+
+Statement-level status fields returned by `GET /bank-statements` and `GET /bank-statements/{bank_statement_id}`:
+
+```json
+{
+  "processing_status": "COMPLETED",
+  "parse_confidence": 0.94,
+  "parse_warnings": [],
+  "transactions_status": "COMPLETED",
+  "transactions_count": 128,
+  "category_status": "PARTIAL",
+  "category_coverage": 0.82,
+  "category_confidence": 0.76,
+  "category_low_confidence_count": 9,
+  "channel_status": "COMPLETED",
+  "channel_coverage": 1.0,
+  "channel_confidence": 0.81,
+  "channel_low_confidence_count": 4,
+  "entity_status": "PARTIAL",
+  "entity_coverage": 0.69,
+  "entity_confidence": 0.73,
+  "entity_low_confidence_count": 6,
+  "confidence_level": "MEDIUM",
+  "status_details": {
+    "transactions": { "total": 128 },
+    "category": {
+      "status": "PARTIAL",
+      "total": 128,
+      "processed_count": 105,
+      "failed_count": 0,
+      "pending_count": 23,
+      "coverage": 0.8203,
+      "average_confidence": 0.76,
+      "low_confidence_count": 9
+    }
+  }
+}
+```
+
+Status values to design for:
+
+- `NOT_STARTED`: no transactions or prediction work has started.
+- `PENDING`: transactions exist, but that processing stage has not produced results yet.
+- `PARTIAL`: some rows are processed or failed, but the statement is not fully complete.
+- `COMPLETED`: all rows are processed for that stage.
+- `FAILED`: all rows failed for that stage.
+
+Confidence levels:
+
+- `HIGH`
+- `MEDIUM`
+- `LOW`
+
+UX guidance:
+
+- Do not treat `PARTIAL` as a broken statement. Present it as "Still processing" or "Needs review" depending on whether pending rows remain.
+- Use compact status chips on cards/tables, with a detail popover or expandable area showing coverage, average confidence, pending count, failed count, and low-confidence count.
+- Surface low statement-level confidence before the user drills into individual transactions.
+- Let users compare behavior by bank/wallet type using bank, status, and confidence filters.
 
 ### 4. Statement Detail Page
 
@@ -424,6 +507,9 @@ Sections:
 - Financial summary
 - Exported Excel link
 - Processing/parse quality
+- Statement processing health
+- Category/channel/entity rollup coverage and confidence
+- Low-confidence and pending prediction counts
 - CTA to view dashboard
 - CTA to view transactions
 - CTA to run monthly analysis
@@ -1063,6 +1149,9 @@ Important states to design:
 - Upload success
 - Upload failure
 - Low parse confidence
+- Statement partially processed
+- Low statement confidence
+- Category/channel/entity processing pending
 - No transactions found
 - No insights available
 - AI answer loading

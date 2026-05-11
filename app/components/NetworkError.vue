@@ -41,7 +41,7 @@ const displayTimestamp = computed(() => props.timestamp ?? new Date().toISOStrin
 
         <div class="text-center space-y-3">
           <h2 class="text-headline-md font-semibold text-navy">Network connection error</h2>
-          <p class="text-body-md font-normal text-grey">
+          <p class="text-body-md font-normal text-secondary">
             Check your internet and try again. We couldn't establish a secure connection to the authentication servers.
           </p>
         </div>
@@ -83,8 +83,8 @@ const displayTimestamp = computed(() => props.timestamp ?? new Date().toISOStrin
         <a href="#" class="text-primary font-medium hover:underline transition-colors">Service Status</a> page.
       </p>
       <div class="flex items-center justify-center gap-x-2">
-        <span class="material-symbols-outlined text-grey text-body-sm" aria-hidden="true">lock</span>
-        <span class="text-label-caps font-bold uppercase text-grey tracking-widest">MiFlujo Secure Gateway</span>
+        <span class="material-symbols-outlined text-secondary text-body-sm" aria-hidden="true">lock</span>
+        <span class="text-label-caps font-bold uppercase text-secondary tracking-widest">MiFlujo Secure Gateway</span>
       </div>
     </footer>
 

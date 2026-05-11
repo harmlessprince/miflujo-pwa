@@ -85,7 +85,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
       <!-- Prefix -->
       <span
         v-if="prefix"
-        class="absolute left-4 top-1/2 -translate-y-1/2 text-grey font-bold z-10 pointer-events-none"
+        class="absolute left-4 top-1/2 -translate-y-1/2 text-secondary font-bold z-10 pointer-events-none"
       >
         {{ prefix }}
       </span>
@@ -107,7 +107,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
           inputClass
         ]"
       >
-        <span class="truncate pr-4 text-body-md" :class="selectedOption ? 'text-navy' : 'text-grey'">
+        <span class="truncate pr-4 text-body-md" :class="selectedOption ? 'text-navy' : 'text-secondary'">
           {{ selectedOption ? selectedOption.label : (placeholder ?? 'Select an option') }}
         </span>
       </button>
@@ -118,7 +118,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
         <button
           v-if="selectedOption && !disabled"
           type="button"
-          class="p-1 hover:bg-grey/20 rounded-full transition-colors text-grey hover:text-navy"
+          class="p-1 hover:bg-grey/20 rounded-full transition-colors text-secondary hover:text-navy"
           @click.stop="clearSelection"
         >
           <span class="material-symbols-outlined text-sm">close</span>
@@ -126,7 +126,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
 
         <!-- Chevron -->
         <span
-          class="pointer-events-none text-grey transition-transform duration-200"
+          class="pointer-events-none text-secondary transition-transform duration-200"
           :class="isOpen ? 'rotate-180' : ''"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
@@ -155,7 +155,7 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
           <!-- Search input -->
           <div class="p-2 border-b border-grey/30">
             <div class="relative">
-              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-grey">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-secondary">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                   <path
                     fill-rule="evenodd"
@@ -169,14 +169,14 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
                 v-model="searchQuery"
                 :placeholder="searchPlaceholder"
                 type="text"
-                class="w-full h-9 pl-9 pr-3 rounded-lg bg-surface border border-grey text-body-md text-navy placeholder:text-grey outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                class="w-full h-9 pl-9 pr-3 rounded-lg bg-surface border border-grey text-body-md text-navy placeholder:text-secondary outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
               />
             </div>
           </div>
 
           <!-- Options list -->
           <ul class="max-h-52 overflow-y-auto py-1">
-            <li v-if="filteredOptions.length === 0" class="px-4 py-3 text-body-md text-grey text-center">
+            <li v-if="filteredOptions.length === 0" class="px-4 py-3 text-body-md text-secondary text-center">
               No results for "{{ searchQuery }}"
             </li>
             <li
@@ -213,6 +213,6 @@ onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
     </div>
 
     <p v-if="error" class="text-body-sm text-error mt-1.5 font-medium">{{ error }}</p>
-    <p v-else-if="hint" class="text-label-caps text-grey mt-2 uppercase font-bold tracking-widest">{{ hint }}</p>
+    <p v-else-if="hint" class="text-label-caps text-secondary mt-2 uppercase font-bold tracking-widest">{{ hint }}</p>
   </div>
 </template>

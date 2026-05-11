@@ -101,8 +101,9 @@ Important: do not imply that statement upload, statement parsing, AI answers, or
 6. User uploads a statement file or provides a statement URL.
 7. User optionally enters a statement password.
 8. MiFlujo processes the statement.
-9. User reviews account details, parse quality, warnings, and summary results.
-10. User explores the dashboard, transactions, insights, patterns, and AI assistant.
+9. User reviews account details, parse quality, warnings, and statement-level processing health.
+10. User sees transaction ingestion, category, channel, and entity processing status with coverage and confidence.
+11. User explores the dashboard, transactions, insights, patterns, and AI assistant.
 
 ## Navigation
 
@@ -206,6 +207,10 @@ Primary fields:
 - Transaction count
 - Parse confidence
 - Data quality
+- Processing status
+- Transactions processed status
+- Category, channel, and entity processing status
+- Coverage and statement confidence level
 
 Main cards:
 
@@ -214,6 +219,7 @@ Main cards:
 - Net Cashflow
 - Transaction Count
 - Category Confidence
+- Statement Processing Health
 - Recurring Payments
 - Unusual Transactions
 - Data Quality / Validation Warnings
@@ -240,6 +246,9 @@ States:
 - Loading dashboard
 - No insights available
 - Low parse confidence
+- Partial statement processing
+- Low statement confidence
+- Category/channel/entity processing pending
 - Offline / reconnecting
 
 ### 5. Upload Bank Statement
@@ -297,6 +306,9 @@ Success state should show:
 - Exported file link, if available
 - Parse confidence
 - Parse warnings, if any
+- Transactions status and transaction count
+- Category, channel, and entity status
+- Statement confidence level
 
 Failure state should show:
 
@@ -323,6 +335,11 @@ Columns / card fields:
 - Total withdrawals
 - Date uploaded
 - Status
+- Transactions status
+- Category status
+- Channel status
+- Entity status
+- Confidence level
 
 Actions:
 
@@ -339,6 +356,11 @@ Filters:
 - Bank or wallet
 - Created date range
 - Status
+- Transactions status
+- Category status
+- Channel status
+- Entity status
+- Confidence level
 
 Mobile behavior:
 
@@ -358,6 +380,9 @@ Sections:
 - Financial summary
 - Exported file link
 - Processing/parse quality
+- Statement processing health
+- Prediction coverage and confidence rollups
+- Pending, failed, and low-confidence counts
 - Data-quality warnings
 
 Actions:
@@ -365,6 +390,37 @@ Actions:
 - View dashboard
 - View transactions
 - Run monthly analysis
+
+Statement-level processing fields:
+
+- `processing_status`: overall parse/import status.
+- `parse_confidence`: parser confidence score.
+- `parse_warnings`: parser warnings.
+- `transactions_status`: transaction ingestion status.
+- `transactions_count`: total extracted transaction rows.
+- `category_status`, `channel_status`, `entity_status`: prediction stage statuses.
+- `category_coverage`, `channel_coverage`, `entity_coverage`: processed fraction for each stage.
+- `category_confidence`, `channel_confidence`, `entity_confidence`: average confidence for each stage.
+- `category_low_confidence_count`, `channel_low_confidence_count`, `entity_low_confidence_count`: rows needing review.
+- `confidence_level`: overall `HIGH`, `MEDIUM`, or `LOW` rollup.
+- `status_details`: expandable detail object with total, processed, pending, failed, coverage, average confidence, and low-confidence counts.
+
+Status values to design for:
+
+- `NOT_STARTED`
+- `PENDING`
+- `PARTIAL`
+- `COMPLETED`
+- `FAILED`
+
+Design guidance:
+
+- Use compact chips or badges for each processing stage.
+- `PARTIAL` should feel like progress or review-needed, not a fatal error.
+- Show coverage as a percentage where space allows.
+- Use expandable details on mobile rather than crowding the statement card.
+- Make low confidence visible at statement level before users open the transaction table.
+- Let users filter statement lists by bank/wallet, status, prediction stage, and confidence level.
 
 ### 8. Transactions Explorer
 
@@ -677,6 +733,9 @@ This can live inside the dashboard, insights area, or as a dedicated risk/patter
 - Upload success
 - Upload failure
 - Low parse confidence
+- Partial statement processing
+- Low statement confidence
+- Category/channel/entity processing pending
 - No transactions found
 - No insights available
 - AI answer loading

@@ -3,48 +3,56 @@
     <!-- Header -->
     <header class="flex h-16 shrink-0 items-center justify-between border-b border-grey bg-white px-4">
       <IconButton icon="menu" label="Open navigation" @click="toggleSidebar" />
-      <img src="/horizontal-logo.png" alt="MiFlujo" class="h-8 w-auto max-w-[150px]" />
-      <div class="relative flex w-10 justify-end" v-if="authStore.user">
-        <button
-          type="button"
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-navy text-body-sm font-semibold text-white transition-colors hover:bg-navy/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          @click="profileDropdownOpen = !profileDropdownOpen"
-        >
-          {{ authStore.user.name?.charAt(0).toUpperCase() || 'U' }}
-        </button>
-
-        <!-- Dropdown -->
-        <div
-          v-if="profileDropdownOpen"
-          class="absolute right-0 top-12 z-50 w-[min(14rem,calc(100vw-2rem))] overflow-hidden rounded-[10px] border border-grey bg-white shadow-lg"
-        >
-          <div class="px-4 py-3 border-b border-grey">
-            <p class="text-body-sm font-semibold text-navy truncate">{{ authStore.user.name }}</p>
-            <p class="text-label-caps text-grey truncate">{{ authStore.user.email }}</p>
-          </div>
+      
+        <img :src="horizontalLogoSrc" alt="MiFlujo" class="h-8 w-auto max-w-[150px]" />
+      
+      
+      <ClientOnly>
+        <div class="relative flex w-10 justify-end" v-if="authStore.user">
           <button
             type="button"
-            class="flex w-full items-center gap-2 px-4 py-3 text-left text-body-sm text-error transition-colors hover:bg-surface"
-            @click="handleLogout"
+            class="flex h-10 w-10 items-center justify-center rounded-full bg-navy text-body-sm font-semibold text-white transition-colors hover:bg-navy/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            @click="profileDropdownOpen = !profileDropdownOpen"
           >
-            <span class="material-symbols-outlined text-title-sm" aria-hidden="true">logout</span>
-            Logout
+            {{ authStore.user.name?.charAt(0).toUpperCase() || 'U' }}
           </button>
-        </div>
 
-        <!-- Backdrop to close dropdown -->
-        <div
-          v-if="profileDropdownOpen"
-          class="fixed inset-0 z-40"
-          @click="profileDropdownOpen = false"
-        />
-      </div>
+          <!-- Dropdown -->
+          <div
+            v-if="profileDropdownOpen"
+            class="absolute right-0 top-12 z-50 w-[min(14rem,calc(100vw-2rem))] overflow-hidden rounded-[10px] border border-grey bg-white shadow-lg"
+          >
+            <div class="px-4 py-3 border-b border-grey">
+              <p class="text-body-sm font-semibold text-navy truncate">{{ authStore.user.name }}</p>
+              <p class="text-label-caps text-secondary truncate">{{ authStore.user.email }}</p>
+            </div>
+            <button
+              type="button"
+              class="flex w-full items-center gap-2 px-4 py-3 text-left text-body-sm text-error transition-colors hover:bg-surface"
+              @click="handleLogout"
+            >
+              <span class="material-symbols-outlined text-title-sm" aria-hidden="true">logout</span>
+              Logout
+            </button>
+          </div>
+
+          <!-- Backdrop to close dropdown -->
+          <div
+            v-if="profileDropdownOpen"
+            class="fixed inset-0 z-40"
+            @click="profileDropdownOpen = false"
+          />
+        </div>
+        <template #fallback>
+          <div class="w-10" />
+        </template>
+      </ClientOnly>
     </header>
 
     <!-- Sidebar (optional drawer) -->
     <BaseDrawer v-model:open="sidebarOpen" side="left">
       <nav class="p-6 space-y-4">
-        <img src="/horizontal-logo.png" alt="MiFlujo" class="mb-6 h-8 w-auto" />
+        <img :src="horizontalLogoSrc" alt="MiFlujo" class="mb-6 h-8 w-auto" />
         <button
           v-for="item in dashboardSidebarMenu"
           :key="item.key"
@@ -64,7 +72,7 @@
     </main>
 
     <!-- Bottom Navigation -->
-    <nav class="grid h-[calc(72px+env(safe-area-inset-bottom))] shrink-0 grid-cols-4 items-stretch border-t border-grey bg-white px-2 pb-[env(safe-area-inset-bottom)]">
+    <nav class="grid h-[calc(72px+env(safe-area-inset-bottom))] shrink-0 grid-cols-5 items-stretch border-t border-grey bg-white px-2 pb-[env(safe-area-inset-bottom)]">
       <button
         v-for="navItem in bottomNav"
         :key="navItem.id"
@@ -92,7 +100,7 @@ const authStore = useAuthStore()
 
 const sidebarOpen = ref(false)
 const profileDropdownOpen = ref(false)
-
+const horizontalLogoSrc = '/horizontal-logo.png'
 const activeNav = computed(() => {
   const matchedItem = bottomNav.find((item) => route.path.startsWith(item.pathName))
   return matchedItem?.id || 'dashboard'
@@ -106,17 +114,19 @@ const handleLogout = async () => {
 // Sidebar menu
 const dashboardSidebarMenu = [
   { key: 'dashboard', name: 'Dashboard', icon: 'dashboard', activeIcon: 'dashboard', pathName: '/dashboard', comingSoon: false },
-  { key: 'statements', name: 'Statements', icon: 'description', activeIcon: 'description', pathName: '/statements', comingSoon: false },
-  { key: 'upload', name: 'Upload', icon: 'upload', activeIcon: 'upload', pathName: '/upload', comingSoon: false },
-  { key: 'ai', name: 'AI Assistant', icon: 'smart_toy', activeIcon: 'smart_toy', pathName: '/ai', comingSoon: false },
+  { key: 'statements', name: 'Statements', icon: 'description', activeIcon: 'description', pathName: '/dashboard/statements', comingSoon: false },
+  { key: 'transactions', name: 'Transactions', icon: 'receipt_long', activeIcon: 'receipt_long', pathName: '/dashboard/transactions', comingSoon: false },
+  { key: 'analytics', name: 'Analytics', icon: 'analytics', activeIcon: 'analytics', pathName: '/dashboard/analytics', comingSoon: false },
+  { key: 'ai', name: 'AI Assistant', icon: 'smart_toy', activeIcon: 'smart_toy', pathName: '/dashboard/ai', comingSoon: false },
 ]
 
 // Bottom navigation
 const bottomNav = [
-  { id: 'dashboard', label: 'DASHBOARD', icon: 'dashboard', activeIcon: 'dashboard', pathName: '/dashboard' },
-  { id: 'statements', label: 'STATEMENTS', icon: 'description', activeIcon: 'description', pathName: '/statements' },
-  { id: 'upload', label: 'UPLOAD', icon: 'upload', activeIcon: 'upload', pathName: '/upload' },
-  { id: 'ai', label: 'AI', icon: 'smart_toy', activeIcon: 'smart_toy', pathName: '/ai' },
+  { id: 'dashboard', label: 'HOME', icon: 'dashboard', activeIcon: 'dashboard', pathName: '/dashboard' },
+  { id: 'statements', label: 'STATEMENTS', icon: 'description', activeIcon: 'description', pathName: '/dashboard/statements' },
+  { id: 'transactions', label: 'TXNS', icon: 'receipt_long', activeIcon: 'receipt_long', pathName: '/dashboard/transactions' },
+  { id: 'analytics', label: 'ANALYTICS', icon: 'analytics', activeIcon: 'analytics', pathName: '/dashboard/analytics' },
+  { id: 'ai', label: 'AI', icon: 'smart_toy', activeIcon: 'smart_toy', pathName: '/dashboard/ai' },
 ]
 
 const toggleSidebar = () => {

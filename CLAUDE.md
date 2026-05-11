@@ -21,7 +21,7 @@ No lint or test scripts are configured yet.
 
 **Stack**: Nuxt 4 · Vue 3 · TypeScript · Tailwind CSS · Pinia · vee-validate · vue-final-modal · @vite-pwa/nuxt · nuxt-google-auth
 
-Nuxt 4 uses the `app/` directory — the root component is `app/app.vue`. Pages, components, layouts, stores, and middleware live at the project root (not inside `app/`).
+Nuxt 4 uses the `app/` source directory. All pages, components, layouts, stores, middleware, and utilities live **inside `app/`** — the root component is `app/app.vue`.
 
 ### Data flow
 
@@ -97,16 +97,16 @@ Use `toastStore.success()` / `toastStore.error()` for user feedback after mutati
 
 ### Pages
 
-Every page uses `definePageMeta()` for layout and middleware and `useHead()` for SEO:
+Every page uses `definePageMeta()` for layout and `useHead()` for SEO:
 
 ```vue
 <script setup>
-definePageMeta({ layout: 'dashboard', middleware: ['auth'] })
+definePageMeta({ layout: 'dashboard' })
 useHead({ title: 'Dashboard — MiFlujo' })
 </script>
 ```
 
-Available layouts: `dashboard` (main app with navigation), `auth` (centered, no nav). Middleware: `auth` (redirect to login if unauthenticated), `guest` (redirect to dashboard if already logged in).
+Available layouts: `dashboard` (main app with navigation), `auth` (centered, no nav). Middleware: both `auth.global.js` and `guest.global.js` run automatically on every route — **do not reference them in `definePageMeta`**, they are global and Nuxt will throw "Unknown route middleware" if you do.
 
 Every new dashboard page must be registered in the `dashboardSidebarMenu` array inside `layouts/dashboard.vue`. Each entry shape:
 ```js
@@ -143,7 +143,7 @@ Brand tokens are in CSS custom properties (`assets/css/main.css`) and Tailwind (
 |---|---|---|
 | MiFlujo Red (primary) | `#ED2E23` | `text-primary` / `bg-primary` |
 | Deep Navy | `#02163B` | `text-navy` / `bg-navy` |
-| Light Grey | `#CCCCCC` | `text-grey` / `border-grey` |
+| Light Grey | `#CCCCCC` | `text-secondary` / `border-grey` |
 | App background | `#FCFCFC` | `bg-surface` |
 
 Typography: Azo-Sans is the primary font (already loaded in `fonts.css` and set as `font-sans` in Tailwind). A named typography scale is defined in `tailwind.config.ts` — use `text-display-lg`, `text-headline-md`, `text-title-sm`, `text-body-md`, `text-body-sm`, `text-data-mono`, and `text-label-caps` instead of raw `text-sm` / `text-xs` / arbitrary sizes. For all financial values — balances, amounts, dates, confidence scores — use `text-data-mono font-medium tabular-nums`.

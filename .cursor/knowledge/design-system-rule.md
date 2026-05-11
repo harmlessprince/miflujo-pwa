@@ -12,7 +12,7 @@ MiFlujo tokens instead.
 |---|---|---|---|
 | Primary (MiFlujo Red) | `#ED2E23` | `bg-primary` / `text-primary` / `border-primary` | Primary CTAs, active nav, selected controls, upload/save/confirm buttons |
 | Navy (Deep Navy) | `#02163B` | `bg-navy` / `text-navy` / `border-navy` | Body text, headings, dark surfaces, secondary borders |
-| Grey (Light Grey) | `#CCCCCC` | `bg-grey` / `text-grey` / `border-grey` | Borders, dividers, placeholder text, disabled states, hint text |
+| Grey (Light Grey) | `#CCCCCC` | `bg-grey` / `text-secondary` / `border-grey` | Borders, dividers, placeholder text, disabled states, hint text |
 | Surface | `#FCFCFC` | `bg-surface` | App background, dropdown/input background fills |
 | Error | `#DC2626` | `bg-error` / `text-error` / `border-error` | Validation errors, invalid field states |
 | White | `#FFFFFF` | `bg-white` | Elevated surfaces, cards, drawer panels |
@@ -28,7 +28,7 @@ This keeps destructive/error feedback visually distinct from positive CTAs.
 | Replace this | With this |
 |---|---|
 | `text-slate-700`, `text-gray-700` | `text-navy` |
-| `text-slate-400`, `text-gray-400` | `text-grey` |
+| `text-slate-400`, `text-gray-400` | `text-secondary` |
 | `border-slate-200`, `border-gray-200` | `border-grey` |
 | `bg-slate-50`, `bg-gray-50` | `bg-surface` |
 | `bg-slate-100`, `bg-gray-100` | `bg-grey/20` |
@@ -40,7 +40,7 @@ This keeps destructive/error feedback visually distinct from positive CTAs.
 | `bg-[#003366]`, `border-[#003366]` | `bg-primary` / `border-navy` |
 | `text-[#1B1B19]` | `text-navy` |
 | `border-[#E0E0E0]` | `border-grey` |
-| `text-[#616161]`, `placeholder-[#616161]` | `text-grey` / `placeholder:text-grey` |
+| `text-[#616161]`, `placeholder-[#616161]` | `text-secondary` / `placeholder:text-secondary` |
 
 ---
 
@@ -83,7 +83,7 @@ Font weight is **not** baked into the `text-*` utility — apply it separately e
 <span class="text-data-mono font-medium tabular-nums">₦1,234,567.00</span>
 
 <!-- Hint / label cap -->
-<span class="text-label-caps font-bold uppercase tracking-widest text-grey">Statement Period</span>
+<span class="text-label-caps font-bold uppercase tracking-widest text-secondary">Statement Period</span>
 ```
 
 ### Do NOT use these old patterns

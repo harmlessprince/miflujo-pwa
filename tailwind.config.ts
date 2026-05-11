@@ -13,11 +13,14 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#ED2E23',   // MiFlujo Red — actions, active nav, highlights
+        primary: '#ED2E23',  // MiFlujo Red — actions, active nav, highlights
+        secondary: '#4d5e86',  
         navy:    '#02163B',   // Deep Navy — text, headers, dark surfaces
         grey:    '#CCCCCC',   // Light Grey — borders, dividers, disabled states
         surface: '#FCFCFC',   // Near-white app background
         error:   '#DC2626',   // Error red — distinct from primary CTA red
+        success: '#107C10',   // Success green — PROCESSED status, positive values
+        warning: '#F59E0B',   // Warning amber — PENDING status, caution states
       },
       fontFamily: {
         // Primary font: Azo-Sans (all display, headline, body, label scales)

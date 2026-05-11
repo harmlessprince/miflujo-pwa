@@ -143,7 +143,7 @@ Brand tokens are in CSS custom properties (`assets/css/main.css`) and Tailwind (
 |---|---|---|
 | MiFlujo Red (primary) | `#ED2E23` | `text-primary` / `bg-primary` |
 | Deep Navy | `#02163B` | `text-navy` / `bg-navy` |
-| Light Grey | `#CCCCCC` | `text-grey` / `border-grey` |
+| Light Grey | `#CCCCCC` | `text-secondary` / `border-grey` |
 | App background | `#FCFCFC` | `bg-surface` |
 
 Typography: Azo-Sans is the primary font (already loaded in `fonts.css` and set as `font-sans` in Tailwind). A named typography scale is defined in `tailwind.config.ts` — use `text-display-lg`, `text-headline-md`, `text-title-sm`, `text-body-md`, `text-body-sm`, `text-data-mono`, and `text-label-caps` instead of raw `text-sm` / `text-xs` / arbitrary sizes. For all financial values — balances, amounts, dates, confidence scores — use `text-data-mono font-medium tabular-nums`.

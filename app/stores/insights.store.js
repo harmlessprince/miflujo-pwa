@@ -3,18 +3,30 @@ import { endpoints } from '~/utils/endpoints.js'
 import { logger } from '~/utils/helpers.js'
 import { useApiService } from '~/services/apiService.js'
 import { useToastStore } from '~/stores/toast.store.js'
+import { useDashboardScopeStore } from '~/stores/dashboardScope.store.js'
 import dayjs from 'dayjs'
 
 export const useInsightsStore = defineStore('insightsStore', () => {
   const { get, post } = useApiService()
   const toastStore = useToastStore()
+  const dashboardScopeStore = useDashboardScopeStore()
 
-  // ── Scope & date range ─────────────────────────────────────────────────────
-  const scopeType = ref('all') // 'all' | 'statement' | 'account'
-  const scopeStatementId = ref(null)
-  const scopeAccountId = ref(null)
-  const startDate = ref(dayjs().startOf('month').format('YYYY-MM-DD'))
-  const endDate = ref(dayjs().format('YYYY-MM-DD'))
+  // ── Scope & date range compatibility ───────────────────────────────────────
+  const scopeType = computed(() => {
+    if (dashboardScopeStore.mode.includes('statement')) return 'statement'
+    if (dashboardScopeStore.mode.includes('account')) return 'account'
+    return 'all'
+  })
+  const scopeStatementId = computed(() => dashboardScopeStore.bank_statement_id)
+  const scopeAccountId = computed(() => dashboardScopeStore.account_id)
+  const startDate = computed({
+    get: () => dashboardScopeStore.start_date,
+    set: (value) => { dashboardScopeStore.start_date = value },
+  })
+  const endDate = computed({
+    get: () => dashboardScopeStore.end_date,
+    set: (value) => { dashboardScopeStore.end_date = value },
+  })
 
   // ── Loading flags ──────────────────────────────────────────────────────────
   const loading = ref(false)
@@ -38,15 +50,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   function buildScopeBody() {
-    const body = {}
-    if (scopeType.value === 'statement' && scopeStatementId.value) {
-      body.bank_statement_id = scopeStatementId.value
-    } else if (scopeType.value === 'account' && scopeAccountId.value) {
-      body.account_id = scopeAccountId.value
-    }
-    if (startDate.value) body.start_date = startDate.value
-    if (endDate.value) body.end_date = endDate.value
-    return body
+    return dashboardScopeStore.buildPayload()
   }
 
   function extractData(result) {
@@ -63,7 +67,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
     delete scopeOnly.start_date
     delete scopeOnly.end_date
 
-    const ref_date = endDate.value || dayjs().format('YYYY-MM-DD')
+    const ref_date = dashboardScopeStore.end_date || dayjs().format('YYYY-MM-DD')
     const momBody = {
       year: dayjs(ref_date).year(),
       month: dayjs(ref_date).month() + 1,
@@ -154,14 +158,11 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 
   // ── Scope & date setters ───────────────────────────────────────────────────
   function setScope(type, id = null) {
-    scopeType.value = type
-    scopeStatementId.value = type === 'statement' ? id : null
-    scopeAccountId.value = type === 'account' ? id : null
+    dashboardScopeStore.setLegacyScope(type, id)
   }
 
   function setDateRange(start, end) {
-    startDate.value = start
-    endDate.value = end
+    dashboardScopeStore.setDateRange(start, end)
   }
 
   return {

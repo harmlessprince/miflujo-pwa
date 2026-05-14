@@ -11,6 +11,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const authStore = useAuthStore()
   authStore.loadSessionFromStorage()
 
+  if (import.meta.dev && to.path === '/dev/email-token') return
+
   if (to.path === '/inactive') {
     if (!authStore.isAuthenticated) return navigateTo('/')
     await ensureCurrentUser(authStore)

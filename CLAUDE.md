@@ -63,6 +63,21 @@ export const endpoints = {
   },
 }
 ```
+### Local Browser Testing Login
+
+Use the email-token helper when the in-app browser needs an authenticated local
+session for manual UI testing.
+
+- Start the backend with `APP_ENV=local` or `APP_ENV=test`; the backend returns
+  404 for `POST /auth/email-token` outside those environments.
+- Start the PWA against the local backend, usually with
+  `NUXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+- Open `/dev/email-token?email=realolamilekan@gmail.com` in local development.
+  The hidden dev page calls `POST /auth/email-token`, persists the returned
+  access token using the same cookie shape as Google auth, and redirects to
+  `/dashboard`.
+- Do not link `/dev/email-token` from production UI. It is only a browser-test
+  convenience for local development 
 
 ### Stores (Pinia Setup API)
 

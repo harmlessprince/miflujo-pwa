@@ -11,3 +11,4 @@ All deep-dive knowledge files for the MiFlujo codebase. Each file supplements
 | `component-rules.md` | Folder structure, `<script setup>` shape, when to create vs extend components, DataTable usage, icon and slot conventions |
 | `store-patterns.md` | Pinia Setup API patterns, per-action loading refs, toastStore usage, pagination with `getPaginatedData()`, store composition |
 | `page-patterns.md` | Required page boilerplate, layout and middleware selection, sidebar registration, data fetching, dynamic routes |
+| `client-api-ui-map.md` | Clean backend API surface mapped to frontend endpoint registry and future UI slices |

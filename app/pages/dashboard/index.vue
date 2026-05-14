@@ -1,88 +1,100 @@
 <script setup>
-import { useAuthStore } from '~/stores/auth.store.js'
+import { useDashboardScopeStore } from '~/stores/dashboardScope.store.js'
+import { useInsightsStore } from '~/stores/insights.store.js'
+import { formatDate } from '~/utils/helpers.js'
 
 definePageMeta({ layout: 'dashboard' })
 useHead({ title: 'Dashboard — MiFlujo' })
 
-const authStore = useAuthStore()
-const activeTab = ref('review')
+const scopeStore = useDashboardScopeStore()
+const insightsStore = useInsightsStore()
 
-const tabs = [
-  { id: 'review', label: 'REVIEW OVERVIEW' },
-  { id: 'track', label: 'TRACK FLOWS' },
-  { id: 'assess', label: 'ASSESS I' },
-]
+const scopeModeLabel = computed(() => {
+  const labels = {
+    all: 'All accounts',
+    single_account: 'Single account',
+    multi_account: 'Multiple accounts',
+    single_statement: 'Single statement',
+    multi_statement: 'Multiple statements',
+  }
+  return labels[scopeStore.mode] ?? 'All accounts'
+})
 
-const accountInfo = {
-  accountName: 'SAVINGS ACCOUNT • 4012 **** 8829',
-  bankName: 'Zenith Bank PLC',
-  period: 'Oct 1 - Oct 31, 2023',
-}
+const activePayloadRows = computed(() =>
+  Object.entries(scopeStore.buildPayload()).map(([key, value]) => ({
+    key,
+    value: Array.isArray(value) ? value.join(', ') : value,
+  }))
+)
 
-const dataCards = [
-  { id: 'opening', label: 'OPENING BALANCE', value: '₦1,240,500.00' },
-  { id: 'closing', label: 'CLOSING BALANCE', value: '₦1,892,310.45' },
-  { id: 'cashflow', label: 'NET CASHFLOW', value: '+₦651,810.45' },
-  { id: 'period', label: 'STATEMENT PERIOD', value: 'October 1, 2023 – October 31, 2023' },
-]
-
-const handleUploadClick = () => {
-  navigateTo('/dashboard/statements/upload')
+function applyDashboardScope() {
+  insightsStore.fetchOverview()
 }
 </script>
 
 <template>
   <MobileContainer>
-    <!-- Account Analysis Header -->
-    <section class="px-4 py-6 bg-white mb-6">
-      <div class="text-label-caps text-navy font-bold mb-2">ACCOUNT ANALYSIS</div>
-      <h1 class="text-display-lg text-navy font-semibold mb-1">
-        {{ accountInfo.accountName }}
-      </h1>
-      <p class="text-body-sm text-navy mb-4">
-        {{ accountInfo.bankName }} | {{ accountInfo.period }}
+    <section class="border-b border-grey bg-white px-4 py-5">
+      <div class="mb-2 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[20px] text-primary" aria-hidden="true">dashboard</span>
+        <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Dashboard</p>
+      </div>
+      <h1 class="text-headline-md font-semibold text-navy">Financial overview</h1>
+      <p class="mt-1 text-body-sm text-secondary">
+        {{ scopeModeLabel }} · {{ formatDate(scopeStore.start_date, 'short') }} - {{ formatDate(scopeStore.end_date, 'short') }}
       </p>
-
-      <!-- Upload Button - Primary CTA -->
-      <BaseButton
-        class="flex w-full items-center justify-center gap-2"
-        @click="handleUploadClick"
-      >
-        <span class="material-symbols-outlined text-title-sm" aria-hidden="true">upload_file</span>
-        <span>Upload New Statement</span>
-      </BaseButton>
     </section>
 
-    <!-- Tabs Navigation -->
-    <div class="sticky top-0 z-10 grid grid-cols-3 border-b border-grey bg-white">
-      <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        :class="[
-          'min-w-0 px-1 py-3 text-center text-body-sm font-medium transition-colors',
-          activeTab === tab.id
-            ? 'text-primary border-b-2 border-primary'
-            : 'text-navy border-b-2 border-transparent'
-        ]"
-        type="button"
-        @click="activeTab = tab.id"
-      >
-        <span class="block truncate">{{ tab.label }}</span>
-      </button>
-    </div>
+    <DashboardScopeSelector @apply="applyDashboardScope" />
 
-    <!-- Financial Data Cards -->
-    <section class="px-4 py-6 space-y-4">
-      <div class="bg-white border border-grey rounded-lg p-6">
-        <div class="text-label-caps text-navy font-bold mb-3">{{ tabs[0].label }}</div>
-        <div class="space-y-5">
-          <div v-for="card in dataCards" :key="card.id" class="border-t border-grey pt-4 first:border-t-0 first:pt-0">
-            <div class="text-label-caps text-navy font-bold mb-2">{{ card.label }}</div>
-            <div class="break-words text-data-mono font-medium text-navy tabular-nums">
-              {{ card.value }}
-            </div>
+    <section class="space-y-4 px-4 py-5">
+      <div class="rounded-[10px] border border-grey bg-white p-4">
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Active payload</p>
+            <p class="mt-1 text-body-sm text-secondary">Shared by dashboard widgets and analytics calls.</p>
+          </div>
+          <span
+            :class="[
+              'rounded px-2 py-0.5 text-label-caps font-bold uppercase',
+              scopeStore.hasRequiredSelection ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning',
+            ]"
+          >
+            {{ scopeStore.hasRequiredSelection ? 'Ready' : 'Needs scope' }}
+          </span>
+        </div>
+
+        <div class="divide-y divide-grey/20">
+          <div
+            v-for="row in activePayloadRows"
+            :key="row.key"
+            class="grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-3 py-2 first:pt-0 last:pb-0"
+          >
+            <span class="truncate text-label-caps font-bold text-secondary">{{ row.key }}</span>
+            <span class="truncate text-body-sm font-medium text-navy">{{ row.value }}</span>
           </div>
         </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          class="flex flex-col items-start gap-2 rounded-[10px] border border-grey bg-white p-4 text-left transition-colors hover:border-navy"
+          @click="navigateTo('/dashboard/analytics')"
+        >
+          <span class="material-symbols-outlined text-headline-md text-navy" aria-hidden="true">analytics</span>
+          <span class="text-body-sm font-semibold text-navy">Analytics</span>
+          <span class="text-label-caps text-secondary">Use this scope</span>
+        </button>
+        <button
+          type="button"
+          class="flex flex-col items-start gap-2 rounded-[10px] border border-grey bg-white p-4 text-left transition-colors hover:border-navy"
+          @click="navigateTo('/dashboard/statements')"
+        >
+          <span class="material-symbols-outlined text-headline-md text-navy" aria-hidden="true">description</span>
+          <span class="text-body-sm font-semibold text-navy">Statements</span>
+          <span class="text-label-caps text-secondary">Pick context</span>
+        </button>
       </div>
     </section>
   </MobileContainer>

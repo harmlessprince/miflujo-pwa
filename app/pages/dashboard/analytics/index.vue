@@ -3,7 +3,6 @@ import { useInsightsStore } from '~/stores/insights.store.js'
 import { useBankStatementStore } from '~/stores/bankStatement.store.js'
 import { useAccountStore } from '~/stores/account.store.js'
 import { formatToMoney, formatDate } from '~/utils/helpers.js'
-import dayjs from 'dayjs'
 
 definePageMeta({ layout: 'dashboard' })
 useHead({ title: 'Spending Insights — MiFlujo' })
@@ -30,21 +29,6 @@ const {
   endDate,
 } = storeToRefs(insightsStore)
 
-// ── Period presets ─────────────────────────────────────────────────────────
-const PERIOD_PRESETS = [
-  { label: 'This Month', value: 'month' },
-  { label: 'Last 30d', value: '30d' },
-  { label: 'Last 3m', value: '3m' },
-  { label: 'Custom', value: 'custom' },
-]
-const activePeriod = ref('month')
-const customStart = ref('')
-const customEnd = ref('')
-const showScopeDrawer = ref(false)
-const draftScopeType = ref('all')
-const draftStatementId = ref(null)
-const draftAccountId = ref(null)
-
 // ── Scope period bounds ────────────────────────────────────────────────────
 const scopedStatement = computed(() => {
   if (scopeType.value !== 'statement' || !scopeStatementId.value) return null
@@ -54,104 +38,6 @@ const scopedStatement = computed(() => {
 const scopedAccount = computed(() => {
   if (scopeType.value !== 'account' || !scopeAccountId.value) return null
   return accountStore.accounts.find((a) => a.id === scopeAccountId.value) ?? null
-})
-
-const periodMin = computed(() => scopedStatement.value?.period_start ?? null)
-const periodMax = computed(() => scopedStatement.value?.period_end ?? null)
-
-function clampToPeriod(date, side) {
-  if (!periodMin.value && !periodMax.value) return date
-  if (side === 'start' && periodMin.value && date < periodMin.value) return periodMin.value
-  if (side === 'end' && periodMax.value && date > periodMax.value) return periodMax.value
-  return date
-}
-
-function applyPeriod(preset) {
-  activePeriod.value = preset
-  if (preset === 'custom') return
-  const today = dayjs()
-  const ranges = {
-    month: [today.startOf('month').format('YYYY-MM-DD'), today.format('YYYY-MM-DD')],
-    '30d':  [today.subtract(29, 'day').format('YYYY-MM-DD'), today.format('YYYY-MM-DD')],
-    '3m':   [today.subtract(2, 'month').startOf('month').format('YYYY-MM-DD'), today.format('YYYY-MM-DD')],
-  }
-  let [start, end] = ranges[preset]
-  start = clampToPeriod(start, 'start')
-  end   = clampToPeriod(end,   'end')
-  if (start > end) { start = periodMin.value; end = periodMax.value }
-  insightsStore.setDateRange(start, end)
-  insightsStore.fetchOverview()
-}
-
-function applyCustomDates() {
-  if (!customStart.value || !customEnd.value) return
-  const start = clampToPeriod(customStart.value, 'start')
-  const end   = clampToPeriod(customEnd.value,   'end')
-  customStart.value = start
-  customEnd.value   = end
-  insightsStore.setDateRange(start, end)
-  insightsStore.fetchOverview()
-}
-
-// ── Scope ──────────────────────────────────────────────────────────────────
-const SCOPE_TYPES = [
-  { label: 'All', value: 'all' },
-  { label: 'Account', value: 'account' },
-  { label: 'Statement', value: 'statement' },
-]
-
-const statementOptions = computed(() =>
-  stmtStore.statements.map((s) => ({
-    value: s.id,
-    label: `${s.bank_name ?? s.account_name} – ${formatDate(s.period_start, 'short')} to ${formatDate(s.period_end, 'short')}`,
-  }))
-)
-
-const accountOptions = computed(() =>
-  accountStore.accounts.map((a) => ({
-    value: a.id,
-    label: a.display_name,
-  }))
-)
-
-function openScopeDrawer() {
-  draftScopeType.value = scopeType.value
-  draftStatementId.value = scopeStatementId.value
-  draftAccountId.value = scopeAccountId.value
-  showScopeDrawer.value = true
-}
-
-function applyScope() {
-  if (draftScopeType.value === 'statement' && draftStatementId.value) {
-    insightsStore.setScope('statement', draftStatementId.value)
-  } else if (draftScopeType.value === 'account' && draftAccountId.value) {
-    insightsStore.setScope('account', draftAccountId.value)
-  } else {
-    insightsStore.setScope('all')
-  }
-  showScopeDrawer.value = false
-  insightsStore.fetchOverview()
-}
-
-function clearScope() {
-  draftScopeType.value = 'all'
-  draftStatementId.value = null
-  draftAccountId.value = null
-  insightsStore.setScope('all')
-  showScopeDrawer.value = false
-  insightsStore.fetchOverview()
-}
-
-const scopeLabel = computed(() => {
-  if (scopeType.value === 'statement' && scopeStatementId.value) {
-    const found = stmtStore.statements.find((s) => s.id === scopeStatementId.value)
-    return found ? (found.bank_name ?? found.account_name) : 'Statement'
-  }
-  if (scopeType.value === 'account' && scopeAccountId.value) {
-    const found = accountStore.accounts.find((a) => a.id === scopeAccountId.value)
-    return found ? found.display_name : 'Account'
-  }
-  return 'All Statements'
 })
 
 // ── Derived helpers ────────────────────────────────────────────────────────
@@ -242,22 +128,17 @@ onMounted(() => {
   <MobileContainer>
 
     <!-- ── Page Header ──────────────────────────────────────────────────── -->
-    <section class="border-b border-grey bg-white px-4 pb-4 pt-5">
-      <div class="mb-3 flex items-center justify-between gap-3">
+    <section class="border-b border-grey bg-white px-4 py-5">
+      <div class="flex items-center justify-between gap-3">
         <h1 class="text-headline-md font-semibold text-navy">Spending Insights</h1>
-        <button
-          type="button"
-          class="flex items-center gap-1.5 rounded-full border border-grey bg-surface px-3 py-1.5 text-body-sm font-medium text-navy transition-colors hover:border-primary hover:text-primary"
-          @click="openScopeDrawer"
-        >
-          <span class="material-symbols-outlined text-[14px]" aria-hidden="true">filter_list</span>
-          {{ scopeLabel }}
-          <span class="material-symbols-outlined text-[14px]" aria-hidden="true">expand_more</span>
-        </button>
+        <p class="shrink-0 text-label-caps font-bold text-secondary">{{ dateRangeLabel }}</p>
       </div>
+    </section>
 
-      <!-- Scope context strip -->
-      <div v-if="scopedStatement" class="mb-3 flex items-center gap-3 rounded-[10px] border border-grey/60 bg-surface px-3 py-2.5">
+    <DashboardScopeSelector @apply="insightsStore.fetchOverview" />
+
+    <section v-if="scopedStatement || scopedAccount" class="border-b border-grey bg-white px-4 py-3">
+      <div v-if="scopedStatement" class="flex items-center gap-3 rounded-[10px] border border-grey/60 bg-surface px-3 py-2.5">
         <span class="material-symbols-outlined shrink-0 text-[18px] text-navy" aria-hidden="true">account_balance</span>
         <div class="min-w-0 flex-1">
           <p class="truncate text-body-sm font-semibold text-navy">{{ scopedStatement.bank_name }}</p>
@@ -271,62 +152,12 @@ onMounted(() => {
           <p class="text-label-caps text-secondary">txns</p>
         </div>
       </div>
-      <div v-else-if="scopedAccount" class="mb-3 flex items-center gap-3 rounded-[10px] border border-grey/60 bg-surface px-3 py-2.5">
+      <div v-else class="flex items-center gap-3 rounded-[10px] border border-grey/60 bg-surface px-3 py-2.5">
         <span class="material-symbols-outlined shrink-0 text-[18px] text-navy" aria-hidden="true">account_balance_wallet</span>
         <div class="min-w-0 flex-1">
           <p class="truncate text-body-sm font-semibold text-navy">{{ scopedAccount.display_name }}</p>
           <p v-if="scopedAccount.account_number" class="text-label-caps text-secondary">{{ scopedAccount.account_number }}</p>
         </div>
-      </div>
-
-      <!-- Period presets -->
-      <div class="flex gap-2 overflow-x-auto pb-1">
-        <button
-          v-for="preset in PERIOD_PRESETS"
-          :key="preset.value"
-          type="button"
-          :class="[
-            'shrink-0 rounded-full border px-3 py-1.5 text-body-sm font-medium transition-colors',
-            activePeriod === preset.value
-              ? 'border-primary bg-primary/5 text-primary'
-              : 'border-grey bg-white text-navy',
-          ]"
-          @click="applyPeriod(preset.value)"
-        >
-          {{ preset.label }}
-        </button>
-      </div>
-
-      <!-- Custom date inputs -->
-      <div v-if="activePeriod === 'custom'" class="mt-3 flex items-end gap-2">
-        <div class="flex-1">
-          <label class="mb-1 block text-label-caps font-bold text-navy">FROM</label>
-          <input
-            v-model="customStart"
-            type="date"
-            :min="periodMin || undefined"
-            :max="periodMax || undefined"
-            class="h-11 w-full rounded-[10px] border border-grey bg-white px-3 text-body-md text-navy outline-none focus:border-transparent focus:ring-2 focus:ring-primary"
-          />
-        </div>
-        <div class="flex-1">
-          <label class="mb-1 block text-label-caps font-bold text-navy">TO</label>
-          <input
-            v-model="customEnd"
-            type="date"
-            :min="customStart || periodMin || undefined"
-            :max="periodMax || undefined"
-            class="h-11 w-full rounded-[10px] border border-grey bg-white px-3 text-body-md text-navy outline-none focus:border-transparent focus:ring-2 focus:ring-primary"
-          />
-        </div>
-        <BaseButton class="!h-11 !w-24 shrink-0" type="button" @click="applyCustomDates">
-          Apply
-        </BaseButton>
-      </div>
-
-      <div class="mt-2 flex items-center justify-between gap-2">
-        <p class="text-label-caps font-bold text-secondary">{{ dateRangeLabel }}</p>
-        <p v-if="periodMin" class="text-label-caps text-secondary">Dates within statement period</p>
       </div>
     </section>
 
@@ -602,81 +433,6 @@ onMounted(() => {
       </section>
 
     </div>
-
-    <!-- ── Scope Drawer ─────────────────────────────────────────────────── -->
-    <BaseDrawer v-model:open="showScopeDrawer" side="bottom" content-class="p-0">
-      <div class="flex justify-center pt-3 pb-1">
-        <div class="h-1 w-10 rounded-full bg-grey/40" />
-      </div>
-      <div class="flex items-center justify-between border-b border-grey/30 px-5 py-4">
-        <h2 class="text-title-sm font-bold text-navy">Scope</h2>
-        <button
-          type="button"
-          class="flex h-8 w-8 items-center justify-center rounded-full text-secondary transition-colors hover:bg-surface"
-          @click="showScopeDrawer = false"
-        >
-          <span class="material-symbols-outlined text-[20px]" aria-hidden="true">close</span>
-        </button>
-      </div>
-
-      <!-- Scope type tabs -->
-      <div class="px-5 pt-5">
-        <p class="mb-2 text-label-caps font-bold uppercase tracking-widest text-secondary">Scope by</p>
-        <div class="flex gap-2">
-          <button
-            v-for="t in SCOPE_TYPES"
-            :key="t.value"
-            type="button"
-            :class="[
-              'flex-1 rounded-[10px] border py-2.5 text-body-sm font-medium transition-colors',
-              draftScopeType === t.value
-                ? 'border-primary bg-primary/5 text-primary'
-                : 'border-grey bg-white text-navy hover:border-navy',
-            ]"
-            @click="draftScopeType = t.value"
-          >
-            {{ t.label }}
-          </button>
-        </div>
-      </div>
-
-      <!-- Account selector -->
-      <div v-if="draftScopeType === 'account'" class="px-5 pt-4">
-        <p class="mb-2 text-label-caps font-bold uppercase tracking-widest text-secondary">Account</p>
-        <SearchableSelectInput
-          v-model="draftAccountId"
-          :options="accountOptions"
-          placeholder="Choose an account…"
-          search-placeholder="Search account..."
-        />
-      </div>
-
-      <!-- Statement selector -->
-      <div v-else-if="draftScopeType === 'statement'" class="px-5 pt-4">
-        <p class="mb-2 text-label-caps font-bold uppercase tracking-widest text-secondary">Statement</p>
-        <SearchableSelectInput
-          v-model="draftStatementId"
-          :options="statementOptions"
-          placeholder="Choose a statement…"
-          search-placeholder="Search statement..."
-        />
-        <p class="mt-2 text-body-sm text-secondary">Dates will be constrained to the statement's period.</p>
-      </div>
-
-      <!-- All -->
-      <div v-else class="px-5 pt-4">
-        <p class="text-body-sm text-secondary">Analytics will include data across all your uploaded statements.</p>
-      </div>
-
-      <div class="mt-5 flex gap-3 border-t border-grey/30 px-5 py-4">
-        <BaseButton variant="outline" class="flex-1 !h-12" type="button" @click="clearScope">
-          Clear
-        </BaseButton>
-        <BaseButton class="flex-1 !h-12" type="button" @click="applyScope">
-          Apply
-        </BaseButton>
-      </div>
-    </BaseDrawer>
 
   </MobileContainer>
 </template>

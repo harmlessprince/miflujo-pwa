@@ -189,6 +189,35 @@ export const useAuthStore = defineStore("authStore", () => {
         }
     }
 
+    async function loginWithEmailToken(email) {
+        if (!import.meta.dev) {
+            authError.value = 'Email token login is only available in local development.';
+            return false;
+        }
+
+        authError.value = '';
+        try {
+            const response = await post(endpoints.auth.emailToken, { email }, {
+                credentials: 'include',
+            });
+
+            const data = response?.data ?? response;
+            const accessToken = data?.access_token;
+            const nextUser = data?.user;
+
+            if (!accessToken || !nextUser) {
+                authError.value = 'Testing token could not be generated. Please try again.';
+                return false;
+            }
+
+            persistSession(accessToken, data?.expires_in, nextUser);
+            return true;
+        } catch (error) {
+            authError.value = error?.data?.message || 'Email token login failed. Check the local API and try again.';
+            return false;
+        }
+    }
+
     async function logout() {
         clearAuthToken();
         clearAuthUser();
@@ -221,6 +250,7 @@ export const useAuthStore = defineStore("authStore", () => {
         setAuthUser,
         clearAuthUser,
         loginWithGoogle,
+        loginWithEmailToken,
         logout,
         fetchCurrentUser,
         refreshSession,

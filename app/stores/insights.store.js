@@ -32,6 +32,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
   const loading = ref(false)
   const monthlyLoading = ref(false)
   const weeklyLoading = ref(false)
+  const overviewError = ref('')
 
   // ── Overview module data ───────────────────────────────────────────────────
   const totalIncome = ref(null)
@@ -62,6 +63,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
   // ── Overview fetch (all modules in parallel) ───────────────────────────────
   async function fetchOverview() {
     loading.value = true
+    overviewError.value = ''
     const body = buildScopeBody()
     const scopeOnly = { ...body }
     delete scopeOnly.start_date
@@ -121,6 +123,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
       monthOverMonth.value = extractData(momRes)
     } catch (err) {
       logger.error('fetchOverview failed:', err)
+      overviewError.value = err?.data?.message ?? 'Could not load dashboard insights.'
     } finally {
       loading.value = false
     }
@@ -174,6 +177,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
     loading,
     monthlyLoading,
     weeklyLoading,
+    overviewError,
     totalIncome,
     totalSpent,
     netCashflow,

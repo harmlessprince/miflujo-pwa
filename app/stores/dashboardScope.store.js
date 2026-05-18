@@ -19,6 +19,22 @@ const MODE_GROUPS = {
   multi_statement: 'statement',
 }
 
+const MODE_LABELS = {
+  all: 'All accounts',
+  single_account: 'Single account',
+  multi_account: 'Multiple accounts',
+  single_statement: 'Single statement',
+  multi_statement: 'Multiple statements',
+}
+
+const MODE_DESCRIPTIONS = {
+  all: 'Across all uploaded financial data.',
+  single_account: 'One account and its statements.',
+  multi_account: 'Combined view of selected accounts.',
+  single_statement: 'One uploaded statement.',
+  multi_statement: 'Multiple statements under one account.',
+}
+
 function uniqueValues(values) {
   return [...new Set((values ?? []).filter(Boolean))]
 }
@@ -56,6 +72,8 @@ export const useDashboardScopeStore = defineStore('dashboardScopeStore', () => {
   const isAllScope = computed(() => mode.value === 'all')
   const isAccountScope = computed(() => scopeGroup.value === 'account')
   const isStatementScope = computed(() => scopeGroup.value === 'statement')
+  const modeLabel = computed(() => MODE_LABELS[mode.value] ?? MODE_LABELS.all)
+  const modeDescription = computed(() => MODE_DESCRIPTIONS[mode.value] ?? MODE_DESCRIPTIONS.all)
 
   const hasRequiredSelection = computed(() => {
     if (mode.value === 'single_account') return Boolean(account_id.value)
@@ -64,6 +82,29 @@ export const useDashboardScopeStore = defineStore('dashboardScopeStore', () => {
     if (mode.value === 'multi_statement') return bank_statement_ids.value.length > 0 && Boolean(account_id.value)
     return true
   })
+
+  const validationMessage = computed(() => {
+    if (mode.value === 'single_account' && !account_id.value) return 'Choose an account to apply this scope.'
+    if (mode.value === 'multi_account' && account_ids.value.length === 0) return 'Choose at least one account to apply this scope.'
+    if (mode.value === 'single_statement') {
+      if (!account_id.value) return 'Choose an account before selecting a statement.'
+      if (!bank_statement_id.value) return 'Choose a statement to apply this scope.'
+    }
+    if (mode.value === 'multi_statement') {
+      if (!account_id.value) return 'Choose an account before selecting statements.'
+      if (bank_statement_ids.value.length === 0) return 'Choose at least one statement to apply this scope.'
+    }
+    return ''
+  })
+
+  const payload = computed(() => buildPayload())
+
+  const payloadRows = computed(() =>
+    Object.entries(payload.value).map(([key, value]) => ({
+      key,
+      value: Array.isArray(value) ? value.join(', ') : value,
+    }))
+  )
 
   function setMode(nextMode) {
     mode.value = nextMode
@@ -208,7 +249,12 @@ export const useDashboardScopeStore = defineStore('dashboardScopeStore', () => {
     isAllScope,
     isAccountScope,
     isStatementScope,
+    modeLabel,
+    modeDescription,
     hasRequiredSelection,
+    validationMessage,
+    payload,
+    payloadRows,
     setMode,
     setSingleAccount,
     setMultiAccounts,

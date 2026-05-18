@@ -68,6 +68,11 @@ const selectedAccountLabel = computed(() => {
   return account?.display_name ?? 'Choose account'
 })
 
+const selectorLoading = computed(() => accountStore.loading || statementStore.loading)
+const hasAccounts = computed(() => accountStore.accounts.length > 0)
+const hasStatements = computed(() => statementStore.statements.length > 0)
+const applyDisabled = computed(() => selectorLoading.value || !scopeStore.hasRequiredSelection)
+
 function toggleAccount(accountId) {
   const next = account_ids.value.includes(accountId)
     ? account_ids.value.filter((id) => id !== accountId)
@@ -99,6 +104,7 @@ function setStatementMode(nextMode) {
 }
 
 function applyScope() {
+  if (applyDisabled.value) return
   emit('apply', scopeStore.scope)
 }
 
@@ -136,6 +142,14 @@ onMounted(() => {
     </div>
 
     <div v-else-if="activeTab === 'account'" class="space-y-4">
+      <div v-if="accountStore.loading" class="rounded-[8px] border border-grey bg-surface px-3 py-3">
+        <p class="text-body-sm text-secondary">Loading accounts...</p>
+      </div>
+      <div v-else-if="!hasAccounts" class="rounded-[8px] border border-grey bg-surface px-3 py-3">
+        <p class="text-body-sm font-medium text-navy">No accounts found</p>
+        <p class="mt-1 text-body-sm text-secondary">Upload a statement to create account context.</p>
+      </div>
+
       <div class="grid grid-cols-2 gap-2 rounded-[8px] bg-surface p-1">
         <button
           type="button"
@@ -165,6 +179,7 @@ onMounted(() => {
         :options="accountOptions"
         placeholder="Choose an account..."
         search-placeholder="Search account..."
+        :disabled="accountStore.loading || !hasAccounts"
       />
 
       <div v-else class="space-y-2">
@@ -189,11 +204,24 @@ onMounted(() => {
     </div>
 
     <div v-else class="space-y-4">
+      <div v-if="accountStore.loading || statementStore.loading" class="rounded-[8px] border border-grey bg-surface px-3 py-3">
+        <p class="text-body-sm text-secondary">Loading statement choices...</p>
+      </div>
+      <div v-else-if="!hasAccounts" class="rounded-[8px] border border-grey bg-surface px-3 py-3">
+        <p class="text-body-sm font-medium text-navy">No accounts found</p>
+        <p class="mt-1 text-body-sm text-secondary">Upload a statement before using statement scope.</p>
+      </div>
+      <div v-else-if="!hasStatements" class="rounded-[8px] border border-grey bg-surface px-3 py-3">
+        <p class="text-body-sm font-medium text-navy">No statements found</p>
+        <p class="mt-1 text-body-sm text-secondary">Statement scope becomes available after an upload is processed.</p>
+      </div>
+
       <SearchableSelectInput
         v-model="selectedStatementAccountId"
         :options="accountOptions"
         placeholder="Choose account first..."
         search-placeholder="Search account..."
+        :disabled="accountStore.loading || !hasAccounts"
       />
 
       <div class="grid grid-cols-2 gap-2 rounded-[8px] bg-surface p-1">
@@ -285,10 +313,13 @@ onMounted(() => {
     <BaseButton
       class="mt-4 !h-11"
       type="button"
-      :disabled="!scopeStore.hasRequiredSelection"
+      :disabled="applyDisabled"
       @click="applyScope"
     >
       Apply Scope
     </BaseButton>
+    <p v-if="scopeStore.validationMessage" class="mt-2 text-body-sm text-secondary">
+      {{ scopeStore.validationMessage }}
+    </p>
   </section>
 </template>

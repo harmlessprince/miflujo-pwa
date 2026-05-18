@@ -14,6 +14,9 @@ export const useBankStatementStore = defineStore('bankStatementStore', () => {
   const choices = ref([])
   const loading = ref(false)
   const detailLoading = ref(false)
+  const dashboardSummary = ref(null)
+  const dashboardLoading = ref(false)
+  const dashboardError = ref(null)
   const uploadResult = ref(null)
   const uploadError = ref(null)
 
@@ -65,6 +68,25 @@ export const useBankStatementStore = defineStore('bankStatementStore', () => {
       toastStore.error('Could not load statement details. Please try again.')
     } finally {
       detailLoading.value = false
+    }
+  }
+
+  async function fetchDashboardSummary(id, { accountIds = [] } = {}) {
+    dashboardLoading.value = true
+    dashboardError.value = null
+    try {
+      const params = {}
+      if (accountIds.length) params.account_ids = accountIds
+
+      const response = await get(endpoints.bankStatements.dashboard(id), params)
+      dashboardSummary.value = response?.data ?? response ?? null
+      return { success: true, data: dashboardSummary.value }
+    } catch (err) {
+      logger.error('fetchDashboardSummary failed:', err)
+      dashboardError.value = err?.data?.message ?? err?.data?.detail ?? 'Could not load statement dashboard.'
+      return { success: false, error: err }
+    } finally {
+      dashboardLoading.value = false
     }
   }
 
@@ -122,10 +144,14 @@ export const useBankStatementStore = defineStore('bankStatementStore', () => {
     choices,
     loading,
     detailLoading,
+    dashboardSummary,
+    dashboardLoading,
+    dashboardError,
     uploadResult,
     uploadError,
     fetchStatements,
     fetchStatement,
+    fetchDashboardSummary,
     deleteStatement,
     fetchChoices,
     uploadStatement,

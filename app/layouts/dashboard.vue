@@ -65,10 +65,15 @@
           v-for="item in dashboardSidebarMenu"
           :key="item.key"
           type="button"
-          class="flex w-full items-center gap-3 text-left text-body-md text-navy transition-colors hover:text-primary"
+          :class="[
+            'flex w-full items-center gap-3 rounded-[8px] px-3 py-2 text-left text-body-md transition-colors',
+            isNavigationItemActive(item) ? 'bg-primary/10 text-primary' : 'text-navy hover:bg-surface hover:text-primary',
+          ]"
           @click="goTo(item.pathName); sidebarOpen = false"
         >
-          <span class="material-symbols-outlined text-headline-md" aria-hidden="true">{{ item.icon }}</span>
+          <span class="material-symbols-outlined text-headline-md" aria-hidden="true">
+            {{ isNavigationItemActive(item) ? item.activeIcon : item.icon }}
+          </span>
           {{ item.name }}
         </button>
       </nav>
@@ -148,16 +153,16 @@
     <nav class="grid h-[calc(72px+env(safe-area-inset-bottom))] shrink-0 grid-cols-5 items-stretch border-t border-grey bg-white px-2 pb-[env(safe-area-inset-bottom)]">
       <button
         v-for="navItem in bottomNav"
-        :key="navItem.id"
+        :key="navItem.key"
         :class="[
           'flex min-w-0 flex-col items-center justify-center gap-1 px-1 text-center transition-colors',
-          activeNav === navItem.id ? 'text-primary' : 'text-navy'
+          activeNavKey === navItem.key ? 'text-primary' : 'text-navy'
         ]"
         type="button"
         @click="goTo(navItem.pathName)"
       >
         <span class="material-symbols-outlined text-headline-md" aria-hidden="true">
-          {{ activeNav === navItem.id ? navItem.activeIcon : navItem.icon }}
+          {{ activeNavKey === navItem.key ? navItem.activeIcon : navItem.icon }}
         </span>
         <span class="w-full truncate text-label-caps font-bold">{{ navItem.label }}</span>
       </button>
@@ -168,6 +173,12 @@
 <script setup>
 import { useAuthStore } from '~/stores/auth.store'
 import { usePreferencesStore } from '~/stores/preferences.store.js'
+import {
+  bottomNavigationItems,
+  dashboardNavigationItems,
+  getActiveDashboardNavigationItem,
+  isDashboardNavigationItemActive,
+} from '~/utils/dashboardNavigation.js'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -181,10 +192,10 @@ const floatingUploadPosition = ref({ right: 16, bottom: 88 })
 const isDraggingUploadButton = ref(false)
 const uploadDragState = ref(null)
 const horizontalLogoSrc = '/horizontal-logo.png'
-const activeNav = computed(() => {
-  const matchedItem = bottomNav.find((item) => route.path.startsWith(item.pathName))
-  return matchedItem?.id || 'dashboard'
-})
+const dashboardSidebarMenu = dashboardNavigationItems
+const bottomNav = bottomNavigationItems
+const activeNavItem = computed(() => getActiveDashboardNavigationItem(dashboardSidebarMenu, route.path))
+const activeNavKey = computed(() => activeNavItem.value?.key || null)
 
 const preferencesPromptOpen = computed({
   get() {
@@ -214,23 +225,9 @@ const handleLogout = async () => {
   await authStore.logout()
 }
 
-// Sidebar menu
-const dashboardSidebarMenu = [
-  { key: 'dashboard', name: 'Dashboard', icon: 'dashboard', activeIcon: 'dashboard', pathName: '/dashboard', comingSoon: false },
-  { key: 'statements', name: 'Statements', icon: 'description', activeIcon: 'description', pathName: '/dashboard/statements', comingSoon: false },
-  { key: 'transactions', name: 'Transactions', icon: 'receipt_long', activeIcon: 'receipt_long', pathName: '/dashboard/transactions', comingSoon: false },
-  { key: 'analytics', name: 'Analytics', icon: 'analytics', activeIcon: 'analytics', pathName: '/dashboard/analytics', comingSoon: false },
-  { key: 'ai', name: 'AI Assistant', icon: 'smart_toy', activeIcon: 'smart_toy', pathName: '/dashboard/ai', comingSoon: false },
-]
-
-// Bottom navigation
-const bottomNav = [
-  { id: 'dashboard', label: 'HOME', icon: 'dashboard', activeIcon: 'dashboard', pathName: '/dashboard' },
-  { id: 'statements', label: 'STATEMENTS', icon: 'description', activeIcon: 'description', pathName: '/dashboard/statements' },
-  { id: 'transactions', label: 'TXNS', icon: 'receipt_long', activeIcon: 'receipt_long', pathName: '/dashboard/transactions' },
-  { id: 'analytics', label: 'ANALYTICS', icon: 'analytics', activeIcon: 'analytics', pathName: '/dashboard/analytics' },
-  { id: 'ai', label: 'AI', icon: 'smart_toy', activeIcon: 'smart_toy', pathName: '/dashboard/ai' },
-]
+function isNavigationItemActive(item) {
+  return isDashboardNavigationItemActive(item, route.path)
+}
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value

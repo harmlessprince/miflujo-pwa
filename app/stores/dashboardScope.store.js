@@ -7,8 +7,6 @@ const DEFAULT_SCOPE = {
   account_ids: [],
   bank_statement_id: null,
   bank_statement_ids: [],
-  start_date: dayjs().startOf('month').format('YYYY-MM-DD'),
-  end_date: dayjs().format('YYYY-MM-DD'),
 }
 
 const MODE_GROUPS = {
@@ -39,6 +37,35 @@ function uniqueValues(values) {
   return [...new Set((values ?? []).filter(Boolean))]
 }
 
+function fallbackDateRange() {
+  return {
+    start: dayjs().startOf('month').format('YYYY-MM-DD'),
+    end: dayjs().format('YYYY-MM-DD'),
+  }
+}
+
+function normalizeStatementDate(value) {
+  if (!value) return null
+  const parsed = dayjs(value)
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : null
+}
+
+function rangeFromStatements(statements) {
+  const ranges = (statements ?? [])
+    .map((statement) => ({
+      start: normalizeStatementDate(statement.period_start ?? statement.start_date),
+      end: normalizeStatementDate(statement.period_end ?? statement.end_date),
+    }))
+    .filter((range) => range.start && range.end)
+
+  if (!ranges.length) return null
+
+  return {
+    start: ranges.reduce((earliest, range) => (range.start < earliest ? range.start : earliest), ranges[0].start),
+    end: ranges.reduce((latest, range) => (range.end > latest ? range.end : latest), ranges[0].end),
+  }
+}
+
 function cleanPayload(payload) {
   return Object.fromEntries(
     Object.entries(payload).filter(([, value]) => {
@@ -49,13 +76,14 @@ function cleanPayload(payload) {
 }
 
 export const useDashboardScopeStore = defineStore('dashboardScopeStore', () => {
+  const initialDateRange = fallbackDateRange()
   const mode = ref(DEFAULT_SCOPE.mode)
   const account_id = ref(DEFAULT_SCOPE.account_id)
   const account_ids = ref([...DEFAULT_SCOPE.account_ids])
   const bank_statement_id = ref(DEFAULT_SCOPE.bank_statement_id)
   const bank_statement_ids = ref([...DEFAULT_SCOPE.bank_statement_ids])
-  const start_date = ref(DEFAULT_SCOPE.start_date)
-  const end_date = ref(DEFAULT_SCOPE.end_date)
+  const start_date = ref(initialDateRange.start)
+  const end_date = ref(initialDateRange.end)
 
   const scope = computed(() => ({
     mode: mode.value,
@@ -180,14 +208,51 @@ export const useDashboardScopeStore = defineStore('dashboardScopeStore', () => {
     end_date.value = end || null
   }
 
+  function scopedStatements(statements = []) {
+    if (mode.value === 'single_account') {
+      if (!account_id.value) return []
+      return statements.filter((statement) => String(statement.account_id) === String(account_id.value))
+    }
+
+    if (mode.value === 'multi_account') {
+      const selectedAccountIds = new Set(account_ids.value.map(String))
+      if (!selectedAccountIds.size) return []
+      return statements.filter((statement) => selectedAccountIds.has(String(statement.account_id)))
+    }
+
+    if (mode.value === 'single_statement') {
+      if (!bank_statement_id.value) return []
+      return statements.filter((statement) => String(statement.id) === String(bank_statement_id.value))
+    }
+
+    if (mode.value === 'multi_statement') {
+      const selectedStatementIds = new Set(bank_statement_ids.value.map(String))
+      if (!selectedStatementIds.size) return []
+      return statements.filter((statement) => selectedStatementIds.has(String(statement.id)))
+    }
+
+    return statements
+  }
+
+  function resolveDefaultDateRange(statements = []) {
+    return rangeFromStatements(scopedStatements(statements)) ?? fallbackDateRange()
+  }
+
+  function resetDateRangeForScope(statements = []) {
+    const range = resolveDefaultDateRange(statements)
+    setDateRange(range.start, range.end)
+    return range
+  }
+
   function resetScope() {
+    const dateRange = fallbackDateRange()
     mode.value = DEFAULT_SCOPE.mode
     account_id.value = DEFAULT_SCOPE.account_id
     account_ids.value = [...DEFAULT_SCOPE.account_ids]
     bank_statement_id.value = DEFAULT_SCOPE.bank_statement_id
     bank_statement_ids.value = [...DEFAULT_SCOPE.bank_statement_ids]
-    start_date.value = DEFAULT_SCOPE.start_date
-    end_date.value = DEFAULT_SCOPE.end_date
+    start_date.value = dateRange.start
+    end_date.value = dateRange.end
   }
 
   function buildPayload(options = {}) {
@@ -261,6 +326,8 @@ export const useDashboardScopeStore = defineStore('dashboardScopeStore', () => {
     setSingleStatement,
     setMultiStatements,
     setDateRange,
+    resolveDefaultDateRange,
+    resetDateRangeForScope,
     resetScope,
     buildPayload,
     buildScopeOnlyPayload,

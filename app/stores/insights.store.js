@@ -41,6 +41,10 @@ export const useInsightsStore = defineStore('insightsStore', () => {
   const transactionStats = ref(null)
   const byCategory = ref([])
   const byMerchant = ref([])
+  const transferPersons = ref([])
+  const financialInstitutions = ref([])
+  const paymentProcessors = ref([])
+  const posTerminalUsage = ref(null)
   const burnRate = ref(null)
   const categoryConfidence = ref(null)
   const monthOverMonth = ref(null)
@@ -84,6 +88,10 @@ export const useInsightsStore = defineStore('insightsStore', () => {
         statsRes,
         categoryRes,
         merchantRes,
+        transferPersonsRes,
+        financialInstitutionsRes,
+        paymentProcessorsRes,
+        posTerminalUsageRes,
         burnRes,
         confidenceRes,
         momRes,
@@ -94,6 +102,10 @@ export const useInsightsStore = defineStore('insightsStore', () => {
         post(endpoints.insights.transactionStats, body),
         post(endpoints.insights.byCategory, { ...body, direction: 'debit' }),
         post(endpoints.insights.byMerchant, { ...body, direction: 'debit', sort_by: 'amount' }),
+        post(endpoints.insights.transferPersons, { ...body, sort_by: 'transaction_count' }),
+        post(endpoints.insights.financialInstitutions, { ...body, sort_by: 'transaction_count' }),
+        post(endpoints.insights.paymentProcessors, { ...body, sort_by: 'transaction_count' }),
+        post(endpoints.insights.posTerminalUsage, body),
         post(endpoints.insights.burnRate, body),
         post(endpoints.insights.categoryConfidence, body),
         post(endpoints.insights.monthOverMonth, momBody),
@@ -117,7 +129,10 @@ export const useInsightsStore = defineStore('insightsStore', () => {
         : Array.isArray(merchData)
           ? merchData
           : []
-
+      transferPersons.value = Array.isArray(extractData(transferPersonsRes)) ? extractData(transferPersonsRes) : []
+      financialInstitutions.value = Array.isArray(extractData(financialInstitutionsRes)) ? extractData(financialInstitutionsRes) : []
+      paymentProcessors.value = Array.isArray(extractData(paymentProcessorsRes)) ? extractData(paymentProcessorsRes) : []
+      posTerminalUsage.value = extractData(posTerminalUsageRes)
       burnRate.value = extractData(burnRes)
       categoryConfidence.value = extractData(confidenceRes)
       monthOverMonth.value = extractData(momRes)
@@ -184,6 +199,10 @@ export const useInsightsStore = defineStore('insightsStore', () => {
     transactionStats,
     byCategory,
     byMerchant,
+    transferPersons,
+    financialInstitutions,
+    paymentProcessors,
+    posTerminalUsage,
     burnRate,
     categoryConfidence,
     monthOverMonth,

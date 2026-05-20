@@ -17,6 +17,19 @@ These routes are intentionally not exposed as normal production UI:
 | `GET /` | Health/demo root endpoint. |
 | Removed analyzer debug routes | `/predict-category`, `/search/vector`, `/query/route`, `/predict-batch`, and `/test-insight` are no longer in OpenAPI. |
 
+## Admin and Ops-Only Surfaces
+
+This PWA is strictly for regular users. The endpoints below are in the shared
+client registry for completeness, but they should not be built into this PWA.
+Build them in a separate admin/ops interface instead.
+
+| Area | Registry keys | Admin reason | UI guidance |
+|---|---|---|---|
+| AI Attempts Review | `aiAttempts.list`, `aiAttempts.summary` | Operational answer-quality review, debugging, miss/clarification monitoring, and model/tool QA. | Separate admin/ops app only. Do not expose in this PWA. |
+| Label Review Queues | `transactions.reviewQueues`, `transactions.reviewLabel(id, labelKey)` | Queue-level moderation/review across suggested labels can reveal operational quality data and may affect classification workflows. | Separate admin/ops app only. Regular users may correct labels on their own transaction detail, but should not see global review queues. |
+| Apply Label Rules | `transactions.applyLabelRules` | Bulk/rule application can modify many transaction labels and should not run silently. | Separate admin/ops app only. |
+| Alert Evaluation | `actions.alerts.evaluate` | Manual evaluation can trigger or recompute alert events and is operational rather than a routine user action. | Separate admin/ops app, scheduled job, or backend diagnostic only. Regular users should interact with alert inbox/status only. |
+
 ## Local Browser Testing Login
 
 Use the email-token helper when the in-app browser needs an authenticated local
@@ -180,19 +193,7 @@ UI needed:
 
 Do not use `/query/route`; it was a route-preview/debug surface and is removed.
 
-### 6. AI Attempts Review
-
-Registry:
-- `aiAttempts.list`
-- `aiAttempts.summary`
-
-UI needed:
-- Optional AI history/review screen or drawer.
-- Filters for status, entrypoint, selected tool, date range.
-- Summary cards for recent misses and unsupported/clarification counts.
-- This is lower priority than the main assistant.
-
-### 7. Transaction Corrections and Labels
+### 6. Transaction Corrections and Labels
 
 Registry:
 - `transactions.corrections(id)`
@@ -203,10 +204,10 @@ Registry:
 UI needed:
 - On transaction detail, add correction action for category/channel/merchant/person-like fields.
 - Show correction history.
-- Label review queue page or section for confirming/dismissing suggested labels.
-- Apply rules action should be admin-like or clearly scoped; do not run silently.
+- User-facing: per-transaction correction action and correction history only.
+- Do not build label review queues or apply-rules actions in this PWA; those belong in the separate admin/ops interface.
 
-### 8. Product Actions
+### 7. Product Actions
 
 Registry:
 - `actions.budgets.*`
@@ -222,6 +223,7 @@ UI needed:
 - Goal list/create/edit.
 - Alert rule list/create/edit.
 - Alert inbox with status update controls.
+- Do not build manual alert evaluation via `actions.alerts.evaluate` in this PWA; it belongs in the separate admin/ops interface.
 - Summary view for active budgets/goals/alerts and recent insight interactions.
 - Record insight interactions from AI/analytics cards when users save, dismiss, or act on recommendations.
 

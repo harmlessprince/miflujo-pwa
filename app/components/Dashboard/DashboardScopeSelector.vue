@@ -72,6 +72,22 @@ const selectorLoading = computed(() => accountStore.loading || statementStore.lo
 const hasAccounts = computed(() => accountStore.accounts.length > 0)
 const hasStatements = computed(() => statementStore.statements.length > 0)
 const applyDisabled = computed(() => selectorLoading.value || !scopeStore.hasRequiredSelection)
+const selectedAccountIdsKey = computed(() => account_ids.value.join(','))
+const selectedStatementIdsKey = computed(() => bank_statement_ids.value.join(','))
+const statementPeriodsKey = computed(() =>
+  statementStore.statements
+    .map((statement) => [
+      statement.id,
+      statement.account_id,
+      statement.period_start ?? statement.start_date ?? '',
+      statement.period_end ?? statement.end_date ?? '',
+    ].join(':'))
+    .join('|')
+)
+
+function resetDatesForCurrentScope() {
+  scopeStore.resetDateRangeForScope(statementStore.statements)
+}
 
 function toggleAccount(accountId) {
   const next = account_ids.value.includes(accountId)
@@ -108,9 +124,24 @@ function applyScope() {
   emit('apply', scopeStore.scope)
 }
 
-onMounted(() => {
-  accountStore.fetchAccounts()
-  statementStore.fetchStatements()
+watch(
+  [
+    mode,
+    account_id,
+    selectedAccountIdsKey,
+    bank_statement_id,
+    selectedStatementIdsKey,
+    statementPeriodsKey,
+  ],
+  resetDatesForCurrentScope
+)
+
+onMounted(async () => {
+  await Promise.all([
+    accountStore.fetchAccounts(),
+    statementStore.fetchStatements(),
+  ])
+  resetDatesForCurrentScope()
 })
 </script>
 

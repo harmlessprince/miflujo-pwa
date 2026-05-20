@@ -7,6 +7,7 @@ import { useToastStore } from '~/stores/toast.store.js'
 export const useBankStatementStore = defineStore('bankStatementStore', () => {
   const { get, post, delete: deleteRequest } = useApiService()
   const toastStore = useToastStore()
+  let fetchStatementsPromise = null
 
   const statements = ref([])
   const currentStatement = ref(null)
@@ -33,13 +34,15 @@ export const useBankStatementStore = defineStore('bankStatementStore', () => {
   }
 
   async function fetchStatements(params = {}) {
+    if (loading.value && fetchStatementsPromise) return fetchStatementsPromise
+
     loading.value = true
-    try {
+    fetchStatementsPromise = (async () => {
       const response = await get(endpoints.bankStatements.list, params)
       if (response?.data) {
         statements.value = response.data?.items?.map(mapStatement)
         pagination.value = {
-        total: response.total,
+          total: response.total,
           page: response.page,
           size: response.size,
           pages: response.pages,
@@ -47,11 +50,17 @@ export const useBankStatementStore = defineStore('bankStatementStore', () => {
           hasPrevious: response.page > 1,
         }
       }
+      return response
+    })()
+
+    try {
+      return await fetchStatementsPromise
     } catch (err) {
       logger.error('fetchStatements failed:', err)
       toastStore.error('Could not load statements. Please try again.')
     } finally {
       loading.value = false
+      fetchStatementsPromise = null
     }
   }
 

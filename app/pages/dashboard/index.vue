@@ -1,6 +1,7 @@
 <script setup>
 import { useDashboardScopeStore } from '~/stores/dashboardScope.store.js'
 import { useInsightsStore } from '~/stores/insights.store.js'
+import { useBankStatementStore } from '~/stores/bankStatement.store.js'
 import { formatDate, formatToMoney } from '~/utils/helpers.js'
 
 definePageMeta({ layout: 'dashboard' })
@@ -8,6 +9,7 @@ useHead({ title: 'Dashboard — MiFlujo' })
 
 const scopeStore = useDashboardScopeStore()
 const insightsStore = useInsightsStore()
+const statementStore = useBankStatementStore()
 
 const {
   loading,
@@ -45,7 +47,9 @@ function applyDashboardScope() {
   insightsStore.fetchOverview()
 }
 
-onMounted(() => {
+onMounted(async () => {
+  await statementStore.fetchStatements()
+  scopeStore.resetDateRangeForScope(statementStore.statements)
   insightsStore.fetchOverview()
 })
 </script>

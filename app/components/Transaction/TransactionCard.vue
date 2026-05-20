@@ -34,6 +34,10 @@ function formattedAmount(t) {
     ? `+${formatToMoney(t.amount)}`
     : `−${formatToMoney(t.amount)}`
 }
+
+function displayMerchant(t) {
+  return t.canonical_merchant || t.merchant || null
+}
 </script>
 
 <template>
@@ -117,9 +121,9 @@ function formattedAmount(t) {
     </div>
 
     <!-- Merchant -->
-    <div v-if="transaction.merchant_name" class="mt-2 flex items-center gap-1 text-body-sm text-secondary">
+    <div v-if="displayMerchant(transaction)" class="mt-2 flex items-center gap-1 text-body-sm text-secondary">
       <span class="material-symbols-outlined text-[14px]" aria-hidden="true">store</span>
-      {{ transaction.merchant_name }}
+      {{ displayMerchant(transaction) }}
     </div>
   </article>
 </template>

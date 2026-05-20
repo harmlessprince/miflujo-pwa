@@ -92,7 +92,28 @@ const rankedSections = computed(() => [
     empty: 'No merchant spend found for this statement.',
     items: dashboardSummary.value?.top_merchants ?? [],
   },
+  {
+    title: 'Transfer Persons',
+    icon: 'person',
+    empty: 'No transfer recipients detected for this statement.',
+    items: dashboardSummary.value?.top_transfer_persons ?? [],
+  },
+  {
+    title: 'Financial Institutions',
+    icon: 'account_balance',
+    empty: 'No banks or financial institutions detected for this statement.',
+    items: dashboardSummary.value?.top_financial_institutions ?? [],
+  },
+  {
+    title: 'Payment Processors',
+    icon: 'payments',
+    empty: 'No payment processors detected for this statement.',
+    items: dashboardSummary.value?.top_payment_processors ?? [],
+  },
 ])
+
+const posTerminalUsage = computed(() => dashboardSummary.value?.pos_terminal_usage ?? null)
+const channelUsage = computed(() => dashboardSummary.value?.channel_usage ?? [])
 
 const summaryRows = computed(() => {
   const monthly = dashboardSummary.value?.monthly_summary ?? []
@@ -294,6 +315,50 @@ onMounted(() => {
           <div class="min-w-0">
             <h2 class="text-title-sm font-bold text-navy">Balance Change</h2>
             <p class="mt-1 text-body-sm text-secondary">{{ dashboardSummary.balance_change_explanation.message }}</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="rounded-[8px] border border-grey bg-white p-4">
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <h2 class="text-title-sm font-bold text-navy">Channel Usage</h2>
+            <p class="text-body-sm text-secondary">How transactions moved through banks, processors, and terminals.</p>
+          </div>
+          <span class="material-symbols-outlined shrink-0 text-[22px] text-secondary" aria-hidden="true">hub</span>
+        </div>
+
+        <div class="mb-3 rounded-[8px] border border-grey/50 bg-surface p-3">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-2">
+              <span class="material-symbols-outlined shrink-0 text-[20px] text-navy" aria-hidden="true">point_of_sale</span>
+              <div class="min-w-0">
+                <p class="truncate text-body-sm font-semibold text-navy">POS terminals</p>
+                <p class="text-body-sm text-secondary">{{ countLabel(posTerminalUsage?.transaction_count, 'transaction') }}</p>
+              </div>
+            </div>
+            <p class="shrink-0 text-data-mono text-body-sm font-medium tabular-nums text-navy">
+              {{ moneyValue(posTerminalUsage?.amount) }}
+            </p>
+          </div>
+        </div>
+
+        <div v-if="!channelUsage.length" class="rounded-[8px] border border-grey bg-surface px-3 py-3">
+          <p class="text-body-sm text-secondary">No channel usage data is available yet.</p>
+        </div>
+        <div v-else class="space-y-2">
+          <div
+            v-for="channel in channelUsage.slice(0, 5)"
+            :key="channel.name"
+            class="rounded-[8px] border border-grey/40 px-3 py-2"
+          >
+            <div class="mb-1 flex items-center justify-between gap-3">
+              <p class="truncate text-body-sm font-semibold capitalize text-navy">{{ channel.name }}</p>
+              <p class="shrink-0 text-data-mono text-body-sm font-medium tabular-nums text-navy">{{ moneyValue(channel.amount) }}</p>
+            </div>
+            <p class="text-body-sm text-secondary">
+              {{ channel.percentage ?? 0 }}% · {{ countLabel(channel.transaction_count, 'transaction') }}
+            </p>
           </div>
         </div>
       </section>

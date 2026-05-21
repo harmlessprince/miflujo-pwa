@@ -49,6 +49,20 @@ export const useInsightsStore = defineStore('insightsStore', () => {
   const categoryConfidence = ref(null)
   const monthOverMonth = ref(null)
 
+  const cashflowExcludeCategories = ref([])
+  const cashflowExcludeFlags = ref([])
+  const cashflowCategoryDraft = ref('')
+  const cashflowExclusionFlagOptions = [
+    { value: 'is_internal_transfer', label: 'Internal transfers' },
+    { value: 'is_transfer', label: 'Transfers' },
+    { value: 'is_refund', label: 'Refunds' },
+    { value: 'is_reversal', label: 'Reversals' },
+    { value: 'is_excluded', label: 'Excluded txns' },
+    { value: 'is_stamp_duty', label: 'Stamp duty' },
+    { value: 'is_loan_repayment', label: 'Loan repayments' },
+    { value: 'is_debt_facility', label: 'Debt facilities' },
+  ]
+
   // ── Analysis data ──────────────────────────────────────────────────────────
   const monthlyAnalysis = ref(null)
   const weeklyAnalysis = ref(null)
@@ -56,6 +70,17 @@ export const useInsightsStore = defineStore('insightsStore', () => {
   // ── Helpers ────────────────────────────────────────────────────────────────
   function buildScopeBody() {
     return dashboardScopeStore.buildPayload()
+  }
+
+  function buildCashflowBody() {
+    const body = buildScopeBody()
+    if (cashflowExcludeCategories.value.length) {
+      body.exclude_categories = [...cashflowExcludeCategories.value]
+    }
+    if (cashflowExcludeFlags.value.length) {
+      body.exclude_flags = [...cashflowExcludeFlags.value]
+    }
+    return body
   }
 
   function extractData(result) {
@@ -69,6 +94,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
     loading.value = true
     overviewError.value = ''
     const body = buildScopeBody()
+    const cashflowBody = buildCashflowBody()
     const scopeOnly = { ...body }
     delete scopeOnly.start_date
     delete scopeOnly.end_date
@@ -96,9 +122,9 @@ export const useInsightsStore = defineStore('insightsStore', () => {
         confidenceRes,
         momRes,
       ] = await Promise.allSettled([
-        post(endpoints.insights.totalIncome, body),
-        post(endpoints.insights.totalSpent, body),
-        post(endpoints.insights.netCashflow, body),
+        post(endpoints.insights.totalIncome, cashflowBody),
+        post(endpoints.insights.totalSpent, cashflowBody),
+        post(endpoints.insights.netCashflow, cashflowBody),
         post(endpoints.insights.transactionStats, body),
         post(endpoints.insights.byCategory, { ...body, direction: 'debit' }),
         post(endpoints.insights.byMerchant, { ...body, direction: 'debit', sort_by: 'amount' }),
@@ -183,6 +209,36 @@ export const useInsightsStore = defineStore('insightsStore', () => {
     dashboardScopeStore.setDateRange(start, end)
   }
 
+  function normalizeCategory(value) {
+    return String(value ?? '').trim().toLowerCase().replaceAll('_', ' ').replaceAll('-', ' ')
+  }
+
+  function addCashflowExcludeCategory(value = cashflowCategoryDraft.value) {
+    const normalized = normalizeCategory(value)
+    if (!normalized || cashflowExcludeCategories.value.includes(normalized)) return
+    cashflowExcludeCategories.value.push(normalized)
+    cashflowCategoryDraft.value = ''
+  }
+
+  function removeCashflowExcludeCategory(value) {
+    const normalized = normalizeCategory(value)
+    cashflowExcludeCategories.value = cashflowExcludeCategories.value.filter((category) => category !== normalized)
+  }
+
+  function toggleCashflowExcludeFlag(flag) {
+    if (cashflowExcludeFlags.value.includes(flag)) {
+      cashflowExcludeFlags.value = cashflowExcludeFlags.value.filter((item) => item !== flag)
+      return
+    }
+    cashflowExcludeFlags.value.push(flag)
+  }
+
+  function clearCashflowExclusions() {
+    cashflowExcludeCategories.value = []
+    cashflowExcludeFlags.value = []
+    cashflowCategoryDraft.value = ''
+  }
+
   return {
     scopeType,
     scopeStatementId,
@@ -206,13 +262,22 @@ export const useInsightsStore = defineStore('insightsStore', () => {
     burnRate,
     categoryConfidence,
     monthOverMonth,
+    cashflowExcludeCategories,
+    cashflowExcludeFlags,
+    cashflowCategoryDraft,
+    cashflowExclusionFlagOptions,
     monthlyAnalysis,
     weeklyAnalysis,
     buildScopeBody,
+    buildCashflowBody,
     fetchOverview,
     fetchMonthlyAnalysis,
     fetchWeeklyAnalysis,
     setScope,
     setDateRange,
+    addCashflowExcludeCategory,
+    removeCashflowExcludeCategory,
+    toggleCashflowExcludeFlag,
+    clearCashflowExclusions,
   }
 })

@@ -64,7 +64,7 @@ const kpiCards = computed(() => [
     icon: 'north_east',
   },
   {
-    label: 'Net Cashflow',
+    label: 'Statement Cashflow',
     value: moneyValue(cards.value.net_cashflow?.amount),
     meta: cashflowStatusLabel(cards.value.net_cashflow?.status),
     tone: Number(cards.value.net_cashflow?.amount ?? 0) >= 0 ? 'text-success' : 'text-error',

@@ -43,6 +43,7 @@ const data = monthlyAnalysis
 
 const period = computed(() => data.value?.period ?? null)
 const cashflow = computed(() => data.value?.cashflow ?? null)
+const cashflowLabel = computed(() => 'Statement Cashflow')
 const projection = computed(() => cashflow.value?.projection ?? null)
 const isPartial = computed(() => !period.value?.is_complete || projection.value?.is_partial)
 
@@ -197,7 +198,7 @@ onMounted(() => {
       <!-- Cashflow overview -->
       <section class="rounded-[10px] border border-grey bg-white p-4">
         <div class="mb-3 flex items-center justify-between">
-          <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Cashflow</p>
+          <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">{{ cashflowLabel }}</p>
           <span
             v-if="cashflowStatusConfig"
             :class="['rounded border px-2 py-0.5 text-label-caps font-bold uppercase', cashflowStatusConfig.class]"
@@ -225,7 +226,7 @@ onMounted(() => {
             </p>
           </div>
           <div>
-            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Net Cashflow</p>
+            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">{{ cashflowLabel }}</p>
             <p
               :class="['mt-1 text-data-mono font-medium tabular-nums', (cashflow?.net_cashflow ?? 0) >= 0 ? 'text-success' : 'text-error']"
             >

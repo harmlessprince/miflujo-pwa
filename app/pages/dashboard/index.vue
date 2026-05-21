@@ -20,10 +20,15 @@ const {
   transactionStats,
 } = storeToRefs(insightsStore)
 
-const incomeValue = computed(() => totalIncome.value?.total_income ?? totalIncome.value?.total ?? totalIncome.value?.amount ?? null)
-const spentValue = computed(() => totalSpent.value?.total_spent ?? totalSpent.value?.total ?? totalSpent.value?.amount ?? null)
+const incomeValue = computed(() => totalIncome.value?.net_income ?? totalIncome.value?.total_income ?? totalIncome.value?.total ?? totalIncome.value?.amount ?? null)
+const spentValue = computed(() => totalSpent.value?.net_expenses ?? totalSpent.value?.total_spent ?? totalSpent.value?.total ?? totalSpent.value?.amount ?? null)
 const netValue = computed(() => netCashflow.value?.net_cashflow ?? netCashflow.value?.net ?? null)
 const txCount = computed(() => transactionStats.value?.total_count ?? transactionStats.value?.transaction_count ?? null)
+const cashflowLabel = computed(() => {
+  if (scopeStore.isStatementScope) return 'Statement Cashflow'
+  if (scopeStore.isAccountScope) return 'Account Cashflow'
+  return 'Net Cashflow'
+})
 
 const hasOverviewData = computed(() =>
   incomeValue.value !== null || spentValue.value !== null || netValue.value !== null || txCount.value !== null
@@ -32,7 +37,7 @@ const hasOverviewData = computed(() =>
 const summaryCards = computed(() => [
   { id: 'income', label: 'Income', value: incomeValue.value, tone: 'text-success', format: 'money' },
   { id: 'spent', label: 'Spent', value: spentValue.value, tone: 'text-primary', format: 'money' },
-  { id: 'cashflow', label: 'Net Cashflow', value: netValue.value, tone: netValue.value >= 0 ? 'text-success' : 'text-error', format: 'moneySigned' },
+  { id: 'cashflow', label: cashflowLabel.value, value: netValue.value, tone: netValue.value >= 0 ? 'text-success' : 'text-error', format: 'moneySigned' },
   { id: 'transactions', label: 'Transactions', value: txCount.value, tone: 'text-navy', format: 'count' },
 ])
 

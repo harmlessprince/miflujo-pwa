@@ -33,6 +33,9 @@ const {
   scopeAccountId,
   startDate,
   endDate,
+  cashflowExcludeCategories,
+  cashflowExcludeFlags,
+  cashflowCategoryDraft,
 } = storeToRefs(insightsStore)
 
 // ── Scope period bounds ────────────────────────────────────────────────────
@@ -50,16 +53,30 @@ const scopedAccount = computed(() => {
 const incomeValue = computed(() => {
   const v = totalIncome.value
   if (!v) return null
-  return v?.total_income ?? v?.total ?? v?.amount ?? v
+  return v?.net_income ?? v?.total_income ?? v?.total ?? v?.amount ?? v
 })
 
 const spentValue = computed(() => {
   const v = totalSpent.value
   if (!v) return null
-  return v?.total_spent ?? v?.total ?? v?.amount ?? v
+  return v?.net_expenses ?? v?.total_spent ?? v?.total ?? v?.amount ?? v
 })
 
 const netValue = computed(() => netCashflow.value?.net_cashflow ?? netCashflow.value?.net ?? null)
+const cashflowLabel = computed(() => {
+  if (scopeType.value === 'statement') return 'Statement Cashflow'
+  if (scopeType.value === 'account') return 'Account Cashflow'
+  return 'Net Cashflow'
+})
+const grossNetValue = computed(() => netCashflow.value?.gross_net_cashflow ?? null)
+const excludedIncomeValue = computed(() => netCashflow.value?.excluded_income ?? totalIncome.value?.excluded_income ?? 0)
+const excludedExpensesValue = computed(() => netCashflow.value?.excluded_expenses ?? totalSpent.value?.excluded_expenses ?? 0)
+const hasCashflowExclusions = computed(() =>
+  cashflowExcludeCategories.value.length > 0 || cashflowExcludeFlags.value.length > 0
+)
+const hasExcludedAmounts = computed(() =>
+  Number(excludedIncomeValue.value || 0) > 0 || Number(excludedExpensesValue.value || 0) > 0
+)
 const savingsRate = computed(() => netCashflow.value?.savings_rate ?? null)
 
 const cashflowStatusConfig = computed(() => {
@@ -173,6 +190,19 @@ function formatPercent(value) {
   return `${num > 0 ? '+' : ''}${num.toFixed(1)}%`
 }
 
+function applyCashflowExclusions() {
+  insightsStore.fetchOverview()
+}
+
+function addCashflowCategory() {
+  insightsStore.addCashflowExcludeCategory()
+}
+
+function clearCashflowAdjustments() {
+  insightsStore.clearCashflowExclusions()
+  insightsStore.fetchOverview()
+}
+
 const averageConfidencePercent = computed(() => {
   const value = categoryConfidence.value?.average_confidence
   if (value === null || value === undefined) return null
@@ -228,6 +258,82 @@ onMounted(async () => {
     </section>
 
     <DashboardScopeSelector @apply="insightsStore.fetchOverview" />
+
+    <section class="border-b border-grey bg-white px-4 py-3">
+      <div class="space-y-3">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Cashflow Adjustments</p>
+          <button
+            v-if="hasCashflowExclusions"
+            type="button"
+            class="shrink-0 text-label-caps font-bold text-primary"
+            @click="clearCashflowAdjustments"
+          >
+            Reset
+          </button>
+        </div>
+
+        <div class="flex gap-2">
+          <input
+            v-model="cashflowCategoryDraft"
+            type="text"
+            class="h-10 min-w-0 flex-1 rounded-[8px] border border-grey bg-white px-3 text-body-sm text-navy outline-none focus:border-transparent focus:ring-2 focus:ring-primary"
+            placeholder="Category"
+            @keydown.enter.prevent="addCashflowCategory"
+          >
+          <button
+            type="button"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-primary text-white disabled:opacity-50"
+            :disabled="!cashflowCategoryDraft.trim()"
+            @click="addCashflowCategory"
+          >
+            <span class="material-symbols-outlined text-[20px]" aria-hidden="true">add</span>
+          </button>
+        </div>
+
+        <div v-if="cashflowExcludeCategories.length" class="flex flex-wrap gap-2">
+          <button
+            v-for="category in cashflowExcludeCategories"
+            :key="category"
+            type="button"
+            class="flex items-center gap-1 rounded-[8px] border border-primary/30 bg-primary/5 px-2.5 py-1.5 text-body-sm font-medium text-primary"
+            @click="insightsStore.removeCashflowExcludeCategory(category)"
+          >
+            <span class="truncate">{{ category }}</span>
+            <span class="material-symbols-outlined text-[16px]" aria-hidden="true">close</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <button
+            v-for="option in insightsStore.cashflowExclusionFlagOptions"
+            :key="option.value"
+            type="button"
+            :class="[
+              'flex items-center gap-2 rounded-[8px] border px-3 py-2 text-left text-body-sm font-medium transition-colors',
+              cashflowExcludeFlags.includes(option.value)
+                ? 'border-primary bg-primary/5 text-primary'
+                : 'border-grey bg-white text-navy',
+            ]"
+            @click="insightsStore.toggleCashflowExcludeFlag(option.value)"
+          >
+            <span class="material-symbols-outlined shrink-0 text-[18px]" aria-hidden="true">
+              {{ cashflowExcludeFlags.includes(option.value) ? 'check_circle' : 'radio_button_unchecked' }}
+            </span>
+            <span class="min-w-0 truncate">{{ option.label }}</span>
+          </button>
+        </div>
+
+        <BaseButton
+          type="button"
+          variant="outline"
+          :disabled="loading"
+          @click="applyCashflowExclusions"
+        >
+          Apply Adjustments
+        </BaseButton>
+      </div>
+    </section>
 
     <section v-if="scopedStatement || scopedAccount" class="border-b border-grey bg-white px-4 py-3">
       <div v-if="scopedStatement" class="flex items-center gap-3 rounded-[10px] border border-grey/60 bg-surface px-3 py-2.5">
@@ -326,9 +432,9 @@ onMounted(async () => {
             </p>
             <p v-else class="mt-1 text-body-sm text-secondary">—</p>
           </div>
-          <!-- Net Cashflow -->
+          <!-- Cashflow -->
           <div>
-            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Net Cashflow</p>
+            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">{{ cashflowLabel }}</p>
             <p
               v-if="netValue !== null"
               :class="['mt-1 text-data-mono font-medium tabular-nums', netValue >= 0 ? 'text-success' : 'text-error']"
@@ -336,6 +442,12 @@ onMounted(async () => {
               {{ netValue >= 0 ? '+' : '' }}{{ formatToMoney(netValue) }}
             </p>
             <p v-else class="mt-1 text-body-sm text-secondary">—</p>
+          </div>
+          <div v-if="hasCashflowExclusions && grossNetValue !== null">
+            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Gross Cashflow</p>
+            <p :class="['mt-1 text-data-mono font-medium tabular-nums', grossNetValue >= 0 ? 'text-success' : 'text-error']">
+              {{ grossNetValue >= 0 ? '+' : '' }}{{ formatToMoney(grossNetValue) }}
+            </p>
           </div>
           <!-- Transaction Count -->
           <div>
@@ -357,6 +469,18 @@ onMounted(async () => {
             <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Daily Burn</p>
             <p class="mt-1 text-data-mono font-medium tabular-nums text-navy">
               {{ formatToMoney(burnPerDay) }}
+            </p>
+          </div>
+          <div v-if="hasExcludedAmounts">
+            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Excluded In</p>
+            <p class="mt-1 text-data-mono font-medium tabular-nums text-success">
+              {{ formatToMoney(excludedIncomeValue) }}
+            </p>
+          </div>
+          <div v-if="hasExcludedAmounts">
+            <p class="text-label-caps font-bold uppercase tracking-widest text-secondary">Excluded Out</p>
+            <p class="mt-1 text-data-mono font-medium tabular-nums text-primary">
+              {{ formatToMoney(excludedExpensesValue) }}
             </p>
           </div>
         </div>

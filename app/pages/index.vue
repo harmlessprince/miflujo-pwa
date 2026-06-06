@@ -226,7 +226,7 @@ onMounted(async () => {
                 </a>
             </nav>
             <p class="text-label-caps font-bold uppercase text-secondary tracking-widest">
-                &copy; 2024 MiFlujo Technologies
+                &copy; 2026 MiFlujo Technologies
             </p>
         </footer>
 

@@ -25,7 +25,7 @@ MiFlujo helps you read the full story.
 
 Launching this month.
 
-DM "MiFlujo" for early access.
+Visit https://miflujo.taoforge.org to get early access.
 
 ---
 
@@ -39,7 +39,7 @@ MiFlujo is coming.
 
 We are selecting 10 early users to try MiFlujo for free before public launch.
 
-If you want deeper insight into your spending or statement data, DM "MiFlujo".
+If you want deeper insight into your spending or statement data, visit https://miflujo.taoforge.org to get early access.
 
 ---
 
@@ -79,7 +79,7 @@ It is a financial behavior report.
 
 8/ We are selecting 10 early users for free trial access before launch.
 
-DM "MiFlujo" to join the waitlist.
+Visit https://miflujo.taoforge.org to get early access.
 
 ## Thread 2: Product Features
 
@@ -99,7 +99,7 @@ DM "MiFlujo" to join the waitlist.
 
 8/ Launching this month. 10 early users get free trial access.
 
-DM "MiFlujo".
+Get early access at https://miflujo.taoforge.org.
 
 ## Reply Templates
 
@@ -113,5 +113,4 @@ Question: "Is this for businesses?"
 
 Question: "How do I join?"
 
-> DM "MiFlujo" with your name, email, and whether you are joining as an individual, business, lender, or auditor.
-
+> Visit https://miflujo.taoforge.org to get early access.

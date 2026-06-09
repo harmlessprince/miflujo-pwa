@@ -26,7 +26,7 @@ MiFlujo is coming this month.
 
 We are selecting 10 people to try MiFlujo for free before launch.
 
-If you want to understand your spending or analyze bank statements better, message me "MiFlujo".
+If you want to understand your spending or analyze bank statements better, visit https://bit.ly/4useyK1 to get early access.
 
 ### Status 3
 
@@ -42,9 +42,9 @@ Early access is open.
 
 ### Status 4
 
-If you are a business, lender, auditor, accountant, or someone who works with bank statements, I want you in the early test group.
+If you are a business, lender, auditor, accountant, or someone who works with bank statements, early access is open.
 
-Message me "DEMO".
+Visit https://bit.ly/4useyK1 to get early access.
 
 ## Broadcast Message
 
@@ -56,13 +56,9 @@ You can upload a statement and see spending insights, cashflow analysis, recurri
 
 I am selecting 10 early users for free trial access before public launch.
 
-If you want to join, reply with:
+If you want to join, visit https://bit.ly/4useyK1 to get early access.
 
-1. Your name
-2. Individual, business, lender, auditor, or other
-3. What you want to understand from bank statements
-
-## Personal DM Invite
+## Personal Invite
 
 Hey, I am launching MiFlujo this month.
 
@@ -70,18 +66,11 @@ It helps people upload bank statements and understand spending, cashflow, recurr
 
 I am selecting 10 early users for free trial access and feedback. I thought this might be useful to you.
 
-Would you like me to add you?
+You can visit https://bit.ly/4useyK1 to get early access.
 
 ## Follow-Up After Interest
 
-Great. Please send:
-
-1. Your name
-2. Email
-3. Are you joining as an individual, business, lender, auditor, or other?
-4. What do you want MiFlujo to help you understand?
-
-I will add you to the early-access list.
+Great. Please visit https://bit.ly/4useyK1 to get early access.
 
 ## Testimonial Request
 
@@ -97,4 +86,3 @@ You can answer any of these:
 - Would you recommend it to someone else?
 
 With your permission, we may use your feedback on the landing page or social media.
-

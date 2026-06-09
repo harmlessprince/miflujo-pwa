@@ -55,7 +55,7 @@ We are building MiFlujo to turn Nigerian bank statements into financial intellig
 
 Early access opens this month.
 
-CTA: DM "MiFlujo" to join the waitlist.
+CTA: Visit https://bit.ly/4odigFZ to get early access.
 
 ### Post 2: Lender Angle
 
@@ -67,7 +67,7 @@ MiFlujo helps turn statement data into structured insight faster.
 
 We are selecting 10 early users for free trial access before public launch.
 
-CTA: DM "DEMO" if your team reviews bank statements.
+CTA: Visit https://bit.ly/4odigFZ to get early access if your team reviews bank statements.
 
 ### Post 3: SME Angle
 
@@ -85,7 +85,7 @@ MiFlujo helps SMEs turn bank statements into answers.
 
 Early access opens this month.
 
-CTA: Join the waitlist or DM "MiFlujo".
+CTA: Visit https://bit.ly/4odigFZ to get early access.
 
 ### Post 4: Product Reveal
 
@@ -105,7 +105,7 @@ Upload a statement and get:
 
 We are giving 10 early users free trial access before launch.
 
-CTA: DM "MiFlujo" to join the early-access list.
+CTA: Visit https://bit.ly/4odigFZ to get early access.
 
 ### Post 5: Audit Angle
 
@@ -124,7 +124,7 @@ MiFlujo helps organize the work:
 
 Built for people and teams who work closely with bank statements.
 
-CTA: DM "DEMO" if your firm wants early access.
+CTA: Visit https://bit.ly/4odigFZ to get early access.
 
 ## Comment Reply Templates
 
@@ -138,5 +138,4 @@ Someone asks "Is it for individuals or businesses?"
 
 Someone asks "Can I try it?"
 
-> Yes. We are selecting 10 early users for a free trial before public launch. Send me your email or DM "MiFlujo" and I will add you.
-
+> Yes. We are selecting 10 early users for a free trial before public launch. Visit https://miflujo.taoforge.org to get early access.

@@ -46,7 +46,7 @@ Slide 6:
 MiFlujo helps you understand the full story.
 
 Slide 7:
-10 early users get free trial access. DM "MiFlujo".
+10 early users get free trial access. Visit https://bit.ly/3Qsb1gL.
 
 ### Carousel 2: Stop Guessing
 
@@ -83,7 +83,7 @@ MiFlujo helps you turn bank statements into spending insights, cashflow analysis
 
 We are selecting 10 early users for free trial access before launch.
 
-DM "MiFlujo" to join the waitlist.
+Visit https://bit.ly/3Qsb1gL to get early access.
 
 ### Caption 2
 
@@ -97,7 +97,7 @@ Your bank statement can answer questions like:
 
 MiFlujo is coming.
 
-DM "MiFlujo" for early access.
+Visit https://bit.ly/3Qsb1gL to get early access.
 
 ### Caption 3
 
@@ -107,7 +107,7 @@ MiFlujo turns statement data into financial intelligence.
 
 10 early users get free trial access this month.
 
-DM "MiFlujo".
+Get early access at https://bit.ly/3Qsb1gL.
 
 ## Story Templates
 
@@ -127,7 +127,7 @@ We are choosing 10 early users for free trial access.
 
 You will help us test MiFlujo and shape the launch.
 
-DM "MiFlujo".
+Visit https://bit.ly/3Qsb1gL.
 
 ### Story 3
 
@@ -143,4 +143,3 @@ Poll: "Yes" / "I need this"
 ## Hashtags
 
 #MiFlujo #PersonalFinanceNigeria #NigerianFintech #MoneyManagement #SMENigeria #Cashflow #FinancialIntelligence #BankStatement #FintechNigeria
-

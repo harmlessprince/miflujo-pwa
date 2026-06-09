@@ -39,7 +39,7 @@ Instead of manually reading pages of transactions, you can upload a statement an
 
 We are selecting 10 early users for free trial access before public launch.
 
-If you want to try it, comment "MiFlujo" or send me a message.
+If you want to try it, visit https://bit.ly/43i9tcf to get early access.
 
 ## Post 2: SME Group Post
 
@@ -59,7 +59,7 @@ MiFlujo helps turn bank statements into clear insights:
 
 We are launching this month and selecting 10 early users for free trial access.
 
-If you want to test it for your business, send me "MiFlujo".
+If you want to test it for your business, visit https://bit.ly/43i9tcf to get early access.
 
 ## Post 3: Lenders And Auditors
 
@@ -71,7 +71,7 @@ It can parse supported Nigerian bank and wallet statements, categorize transacti
 
 We are opening free trial access to 10 early users before launch.
 
-Send "DEMO" if your work involves bank statements.
+Visit https://bit.ly/43i9tcf to get early access if your work involves bank statements.
 
 ## Community Question Posts
 
@@ -91,7 +91,7 @@ For business owners: do you know your top spending category for last month?
 
 Someone comments "Interested":
 
-> Thanks. I will send you the early-access details. Please DM your name, email, and whether you are joining as an individual, business, lender, auditor, or other.
+> Thanks. You can visit https://bit.ly/43i9tcf to get early access and join as an individual, business, lender, auditor, or other.
 
 Someone asks "Is this safe?":
 
@@ -100,4 +100,3 @@ Someone asks "Is this safe?":
 Someone asks "When is launch?":
 
 > We are launching at the end of June 2026, with 10 early users getting free trial access before the public release.
-

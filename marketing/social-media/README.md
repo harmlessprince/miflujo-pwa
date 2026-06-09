@@ -13,8 +13,8 @@ Primary CTA:
 Secondary CTAs:
 
 - Follow the page for launch updates.
-- DM "MiFlujo" for early access.
-- DM "DEMO" for business, lender, or audit use cases.
+- Visit https://miflujo.taoforge.org to get early access.
+- Direct business, lender, or audit use cases to https://miflujo.taoforge.org.
 
 Launch offer:
 
@@ -29,6 +29,7 @@ MiFlujo turns Nigerian bank statements into financial intelligence. Users can up
 ## Audience Segments
 
 - Individuals who want deeper understanding of spending.
+- Couples and families managing shared household expenses.
 - SMEs and founders who need clearer cashflow visibility.
 - Lending organizations that review bank statements.
 - Auditing and accounting firms that analyze financial activity.
@@ -40,14 +41,16 @@ MiFlujo turns Nigerian bank statements into financial intelligence. Users can up
 - [Instagram](./instagram.md): individuals, SMEs, visual snippets, reels.
 - [X](./x-twitter.md): concise product tension, threads, build-in-public updates.
 - [TikTok/Reels](./tiktok-reels.md): short videos, demos, educational hooks.
-- [WhatsApp](./whatsapp.md): warm audience, status posts, broadcast copy, DM follow-up.
+- [WhatsApp](./whatsapp.md): warm audience, status posts, broadcast copy, early-access follow-up.
 - [Facebook](./facebook.md): community posts, SME groups, longer explanatory content.
+- [Household Budget Story](./household-budget.md): family expense story campaign for couples and shared household budgets.
 
 ## Words To Prefer
 
 - Financial intelligence
 - Spending insights
 - Cashflow analysis
+- Household budget clarity
 - Unusual transaction detection
 - Recurring payment detection
 - Early access
@@ -82,7 +85,7 @@ Use this shorter version when space is tight:
 
 ## Waitlist Intake Questions
 
-Ask these when someone DMs or fills the form:
+Collect these through the early-access flow:
 
 1. Name
 2. Email or WhatsApp number
@@ -90,3 +93,5 @@ Ask these when someone DMs or fills the form:
 4. What do you want to understand from bank statements?
 5. Can we contact you for feedback and a possible testimonial?
 
+
+https://ga-dev-tools.google/ga4/campaign-url-builder/

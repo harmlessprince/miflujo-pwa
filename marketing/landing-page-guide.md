@@ -8,7 +8,7 @@ Primary CTA:
 
 Secondary CTA:
 
-> DM "MiFlujo"
+> Visit https://miflujo.taoforge.org
 
 B2B CTA:
 
@@ -264,8 +264,8 @@ Use no more than three CTA labels across the landing page:
 
 Primary CTA behavior:
 
-- If the product link is not ready, open a waitlist form.
-- If no form is ready, use a mailto link or WhatsApp/DM instruction temporarily.
+- Send early-access visitors to https://miflujo.taoforge.org.
+- Use the site as the single source for waitlist and demo intake.
 
 Recommended waitlist form fields:
 
@@ -356,4 +356,3 @@ Join MiFlujo early access and turn Nigerian bank statements into clear financial
 - Privacy and terms links exist, even if basic.
 - Testimonials section can be updated after first 10 users.
 - Mobile layout is checked.
-

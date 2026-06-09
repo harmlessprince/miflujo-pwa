@@ -35,7 +35,7 @@ Voiceover:
 > But your bank statement knows where your money went, what keeps repeating, and when spending changed.
 > MiFlujo helps you understand the full story.
 > We are choosing 10 early users for free trial access.
-> DM "MiFlujo".
+> Visit https://miflujo.taoforge.org to get early access.
 
 On-screen text:
 
@@ -76,7 +76,7 @@ On-screen text:
 
 - SMEs need cashflow clarity.
 - MiFlujo launches this month.
-- DM "MiFlujo".
+- Get early access: https://miflujo.taoforge.org.
 
 ## Script 4: Lender/Auditor Angle
 
@@ -87,13 +87,13 @@ Voiceover:
 > If your work depends on bank statements, manual review can slow everything down.
 > MiFlujo turns statements into structured financial intelligence.
 > Built for lenders, auditors, finance teams, businesses, and individuals.
-> DM "DEMO" for early access.
+> Visit https://miflujo.taoforge.org to get early access.
 
 On-screen text:
 
 - Statement-heavy work?
 - Faster insight.
-- DM "DEMO".
+- Get early access.
 
 ## Caption Bank
 
@@ -103,7 +103,7 @@ Your bank statement knows more than your balance. MiFlujo helps you understand t
 
 10 early users get free trial access before launch.
 
-DM "MiFlujo".
+Get early access at https://miflujo.taoforge.org.
 
 ### Caption 2
 
@@ -122,5 +122,4 @@ MiFlujo is coming.
 - Use real product snippets where possible.
 - Blur or replace sensitive account and transaction data.
 - Keep each video focused on one idea.
-- End every video with the same CTA: DM "MiFlujo" or join the waitlist.
-
+- End every video with the same CTA: visit https://miflujo.taoforge.org to get early access.

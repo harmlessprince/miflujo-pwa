@@ -29,7 +29,6 @@ export const useApiService = () => {
             });
         } catch (error) {
             logger.error(`API ${method} Error:`, error);
-            throw error;
         }
     };
 

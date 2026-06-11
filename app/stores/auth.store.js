@@ -132,12 +132,7 @@ export const useAuthStore = defineStore("authStore", () => {
         refreshLoading.value = true
         try {
             const config = useRuntimeConfig()
-            const response = await $fetch(endpoints.auth.refresh, {
-                method: 'POST',
-                baseURL: config.public.apiBaseUrl,
-                credentials: 'include',
-                silent: true,
-            })
+            const response = await post(endpoints.auth.refresh, {}, {silent: true,})
             const data = response?.data ?? response
             const accessToken = data?.access_token
             const nextUser = data?.user

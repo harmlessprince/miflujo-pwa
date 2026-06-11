@@ -35,8 +35,17 @@ export default defineNuxtConfig({
     '@vee-validate/nuxt',
     '@vue-final-modal/nuxt',
     '@pinia/nuxt',
-    'nuxt-toast'
+    'nuxt-toast',
+    '@nuxt/scripts',
   ],
+
+  scripts: {
+    registry: {
+      googleAnalytics: {
+        id: 'G-0FG6FTEPH5',
+      }
+    }
+  },
 
   tailwindcss: {
     exposeConfig: true

@@ -37,6 +37,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'nuxt-toast',
     '@nuxt/scripts',
+    'nuxt-gtag'
   ],
 
   scripts: {
@@ -46,7 +47,9 @@ export default defineNuxtConfig({
       }
     }
   },
-
+  gtag: {
+    id: 'G-0FG6FTEPH5'
+  },
   tailwindcss: {
     exposeConfig: true
   }

@@ -23,7 +23,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (PUBLIC_PATHS.includes(to.path)) return
 
   if (!authStore.isAuthenticated) {
-    return navigateTo('/')
+    const refreshed = await authStore.refreshSession()
+    if (!refreshed) return navigateTo('/')
   }
 
   await ensureCurrentUser(authStore)

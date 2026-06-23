@@ -13,6 +13,7 @@ export const useAuthStore = defineStore("authStore", () => {
     const returnUrl = ref(null);
     const authError = ref('');
     const toastStore = useToastStore();
+    let refreshPromise = null;
 
     function loadRememberedUser() {
         if (!import.meta.client) return
@@ -128,23 +129,32 @@ export const useAuthStore = defineStore("authStore", () => {
     }
 
     async function refreshSession() {
-        if (refreshLoading.value) return false
+        if (refreshPromise) return refreshPromise
+
         refreshLoading.value = true
-        try {
-            const config = useRuntimeConfig()
-            const response = await post(endpoints.auth.refresh, {}, {silent: true,})
-            const data = response?.data ?? response
-            const accessToken = data?.access_token
-            const nextUser = data?.user
-            if (!accessToken || !nextUser) return false
-            persistSession(accessToken, data?.expires_in, nextUser)
-            return true
-        } catch {
-            resetAll()
-            return false
-        } finally {
-            refreshLoading.value = false
-        }
+        refreshPromise = (async () => {
+            try {
+                const response = await post(endpoints.auth.refresh, {}, {
+                    silent: true,
+                    skipAuthRefresh: true,
+                    skipAuthRedirect: true,
+                })
+                const data = response?.data ?? response
+                const accessToken = data?.access_token
+                const nextUser = data?.user
+                if (!accessToken || !nextUser) return false
+                persistSession(accessToken, data?.expires_in, nextUser)
+                return true
+            } catch {
+                resetAll()
+                return false
+            } finally {
+                refreshLoading.value = false
+                refreshPromise = null
+            }
+        })()
+
+        return refreshPromise
     }
 
     async function loginWithGoogle(googleCredential) {
@@ -227,6 +237,14 @@ export const useAuthStore = defineStore("authStore", () => {
         authError.value = '';
     }
 
+    async function endSessionForReauth(nextReturnUrl = null) {
+        resetAll();
+        if (import.meta.client) {
+            returnUrl.value = nextReturnUrl ?? `${window.location.pathname}${window.location.search}`;
+        }
+        await navigateTo('/?reauth=1');
+    }
+
     return {
         authToken,
         tokenExpiresAt,
@@ -247,6 +265,7 @@ export const useAuthStore = defineStore("authStore", () => {
         loginWithGoogle,
         loginWithEmailToken,
         logout,
+        endSessionForReauth,
         fetchCurrentUser,
         refreshSession,
         refreshLoading,

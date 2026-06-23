@@ -56,14 +56,7 @@ export default defineNuxtPlugin((_nuxtApp) => {
                     toastStore.error(data?.message ?? 'Bad request, please try again later', error)
                     break;
                 case 401: {
-                    const isRefreshEndpoint = response.url?.includes('/auth/refresh')
-                    if (!isRefreshEndpoint) {
-                        const refreshed = await authStore.refreshSession()
-                        if (refreshed) return data
-                    }
-                    authStore.returnUrl = window?.location?.pathname + window?.location?.search
-                    toastStore.error(message, "Unauthenticated")
-                    navigateTo("/?reauth=1")
+                    logger.error(`[API Auth Error] ${status} ${options.method} ${response.url}:`, data)
                     break
                 }
                 case 403:
@@ -123,8 +116,11 @@ export default defineNuxtPlugin((_nuxtApp) => {
             return data;
         },
 
-        onRequestError(error) {
+        onRequestError({ options, error }) {
             logger.error("Request error", error);
+            if ((options as any).silent || !authStore.isAuthenticated || authStore.refreshLoading) {
+                return Promise.reject(error);
+            }
             toastStore.error("Check your internet connection or try again later", "Request failed");
             errorStore.setErrorMessage("Network error");
             return Promise.reject(error);
